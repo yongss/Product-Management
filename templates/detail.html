@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Product Detail</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .detail-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .detail-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 150px 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .file-card {
+            background: white;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .preview-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        .timestamps {
+            font-size: 0.9em;
+            color: #6c757d;
+            border-top: 1px solid #dee2e6;
+            margin-top: 20px;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="detail-container">
+        <div class="detail-header">
+            <h1>Product Details</h1>
+            <div>
+                <button onclick="openUploadFolder('{{.PartNo}}')" class="btn"
+                    title="Open upload folder in Windows Explorer">📁 Open Folder</button>
+                <a href="/modify/{{.ID}}" class="btn">Edit</a>
+                <a href="/" class="btn-cancel">Back</a>
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <div class="detail-grid">
+                <span class="label">Part No:</span>
+                <span>{{.PartNo}}</span>
+
+                <span class="label">Part Name:</span>
+                <span>{{.PartName}}</span>
+
+                <span class="label">Description:</span>
+                <span>{{.Description}}</span>
+
+                <span class="label">Material:</span>
+                <span>{{.Material}}</span>
+
+                <span class="label">Material Size:</span>
+                <span>{{.MaterialSize}}</span>
+
+                <span class="label">Material Cost ($):</span>
+                <span>{{.MaterialCost}}</span>
+
+                <span class="label">Finishing Type:</span>
+                <span>{{.FinishingType}}</span>
+
+                <span class="label">Finishing Cost ($)</span>
+                <span>{{.FinishingCost}}</span>
+
+                <span class="label">Part Cost:</span>
+                <span>{{.Cost}}</span>
+
+                <span class="label">Quantity:</span>
+                <span>{{.Qty}}</span>
+
+            </div>
+        </div>
+
+        <!-- Photos Section -->
+        <div class="detail-section">
+            <h2>Photos</h2>
+            <div class="files-grid">
+                {{if hasFiles .Photos.String}}
+                {{$photos := parseJSON .Photos.String}}
+                {{range $photos}}
+                <div class="file-card">
+                    <img src="/uploads/{{.Path}}" alt="{{.Name}}" class="thumb" onclick="showPreview(this)">
+                    <div>
+                        <a href="/uploads/{{.Path}}" class="download-link" target="_blank">{{.Name}}</a>
+                        <div class="file-size">{{.Size}}</div>
+                    </div>
+                </div>
+                {{end}}
+                {{else}}
+                <p>No photos available</p>
+                {{end}}
+            </div>
+        </div>
+
+        <div class="detail-section">
+            <h2>2D Drawings</h2>
+            {{if hasFiles .Drawing2D.String}}
+            {{$drawings := parseJSON .Drawing2D.String}}
+            {{range $drawings}}
+            <div class="file-card">
+                <a href="/uploads/{{.Path}}" class="download-link" target="_blank">
+                    📄 {{.Name}}
+                </a>
+                <div class="file-size">{{.Size}}</div>
+            </div>
+            {{end}}
+            {{else}}
+            <p>No drawings available</p>
+            {{end}}
+        </div>
+
+        <div class="detail-section">
+            <h2>3D CAD Files</h2>
+            {{if hasFiles .Cad3D.String}}
+            {{$cad := parseJSON .Cad3D.String}}
+            {{range $cad}}
+            <div class="file-card">
+                <a href="/uploads/{{.Path}}" class="download-link" target="_blank">
+                    📦 {{.Name}}
+                </a>
+                <div class="file-size">{{.Size}}</div>
+            </div>
+            {{end}}
+            {{else}}
+            <p>No CAD files available</p>
+            {{end}}
+        </div>
+        <div class="detail-section">
+            <h2>CNC Code Files</h2>
+            {{if hasFiles .CncCode.String}}
+            {{$cnc := parseJSON .CncCode.String}}
+            {{range $cnc}}
+            <div class="file-card">
+                <a href="/uploads/{{.Path}}" class="download-link" target="_blank">
+                    🔧 {{.Name}}
+                </a>
+                <div class="file-size">{{.Size}}</div>
+            </div>
+            {{end}}
+            {{else}}
+            <p>No CNC code files available</p>
+            {{end}}
+        </div>
+        <div class="detail-section">
+            <h2>Invoice Files</h2>
+            {{if hasFiles .Invoice.String}}
+            {{$invoice := parseJSON .Invoice.String}}
+            {{range $invoice}}
+            <div class="file-card">
+                <a href="/uploads/{{.Path}}" class="download-link" target="_blank">
+                    📝 {{.Name}}
+                </a>
+                <div class="file-size">{{.Size}}</div>
+            </div>
+            {{end}}
+            {{else}}
+            <p>No invoice files available</p>
+            {{end}}
+        </div>
+
+        <div class="timestamps">
+            <div>Created: {{formatDate .CreatedAt}}</div>
+            <div>Last Updated: {{formatDate .UpdatedAt}}</div>
+        </div>
+    </div>
+
+    <div id="preview" class="preview" style="display: none;">
+        <span class="close-btn" onclick="hidePreview()">&times;</span>
+        <img id="previewImg" src="" alt="Preview">
+    </div>
+    <script src="/static/js/image_preview.js"></script>
+    <script>
+        function openUploadFolder(partNo) {
+            // Create a temporary link to trigger the folder opening
+            fetch('/open-folder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ partNo: partNo })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to open folder');
+                    }
+                    return response.text();
+                })
+                .then(message => {
+                    console.log(message);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to open folder: ' + error.message);
+                });
+        }
+    </script>
+</body>
+
+</html>

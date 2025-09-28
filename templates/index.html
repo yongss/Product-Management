@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Product Manager</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+        <style>
+
+            /* Material info styles */
+            .material-info {
+                font-size: 0.9em;
+                color: #666;
+            }
+            
+            .material-detail {
+                display: block;
+                line-height: 1.3;
+            }
+
+                    /* Sticky header for action buttons and search */
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            background-color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 100;
+            margin-bottom: 10px;
+        }
+        </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Product Manager</h1>
+
+                <!-- Sticky header with buttons and search -->
+                <div class="sticky-header">
+        <div class="actions">
+            <div class="action-buttons">
+                <a href="/add" class="btn">Add New Product</a>
+                <a href="/export" class="btn btn-export" download>Export to Excel</a>
+            </div>
+            <form action="/search" method="GET" class="search-form">
+                <input type="text" name="q" placeholder="Search by Part No or Part Name or Description or Material" value="{{.SearchQuery}}">
+                <button type="submit">Search</button>
+                {{if .SearchQuery}}
+                <a href="/" class="btn-clear">Clear</a>
+                {{end}}
+            </form>
+        </div>
+        </div>
+
+
+        <table>
+            <thead>
+                <tr>
+                    <th>
+                        <a href="#" class="sort-link" data-column="partNo">
+                            Part No
+                            <span class="sort-arrow">{{if eq .SortBy "partNo"}}{{if eq .SortOrder
+                                "ASC"}}↑{{else}}↓{{end}}{{end}}</span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#" class="sort-link" data-column="partName">
+                            Part Name
+                            <span class="sort-arrow">{{if eq .SortBy "partName"}}{{if eq .SortOrder
+                                "ASC"}}↑{{else}}↓{{end}}{{end}}</span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#" class="sort-link" data-column="description">
+                            Description
+                            <span class="sort-arrow">{{if eq .SortBy "description"}}{{if eq .SortOrder
+                                "ASC"}}↑{{else}}↓{{end}}{{end}}</span>
+                        </a>
+                    </th>
+        
+                    <th>Material Details</th>
+                    <th>
+                        <a href="#" class="sort-link" data-column="cost">
+                            Part Cost
+                            <span class="sort-arrow">{{if eq .SortBy "cost"}}{{if eq .SortOrder
+                                "ASC"}}↑{{else}}↓{{end}}{{end}}</span>
+                        </a>
+                    </th>
+                    <th>
+                        <a href="#" class="sort-link" data-column="qty">
+                            Qty
+                            <span class="sort-arrow">{{if eq .SortBy "qty"}}{{if eq .SortOrder
+                                "ASC"}}↑{{else}}↓{{end}}{{end}}</span>
+                        </a>
+                    </th>
+                    <th>Photos</th>
+                    <th>
+                        <a href="#" class="sort-link" data-column="updated_at">
+                            Updated At
+                            <span class="sort-arrow">{{if eq .SortBy "updated_at"}}{{if eq .SortOrder
+                                "ASC"}}↑{{else}}↓{{end}}{{end}}</span>
+                        </a>
+                    </th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="productsTableBody">
+                {{range .Products}}
+                <tr class="product-row">
+                    <td>
+                        <a href="/detail/{{.PartNo}}">{{.PartNo}}</a>
+                    </td>
+                    <td>{{.PartName}}</td>
+                    <td>{{.Description}}</td>
+        
+        
+                    <td class="material-info">
+                        {{if .Material}}<span class="material-detail"><strong>Material:</strong>
+                            {{.Material}}</span>{{end}}
+                        {{if .MaterialSize}}<span class="material-detail"><strong>Material Size:</strong>
+                            {{.MaterialSize}}</span>{{end}}
+                        {{if .MaterialCost}}<span class="material-detail"><strong>Material Cost:</strong>
+                            ${{.MaterialCost}}</span>{{end}}
+                        {{if .FinishingType}}<span class="material-detail"><strong>Finishing Type:</strong>
+                            {{.FinishingType}}</span>{{end}}
+                        {{if .FinishingCost}}<span class="material-detail"><strong>Finishing Cost:</strong>
+                            ${{.FinishingCost}}</span>{{end}}
+                    </td>
+                    <td>{{.Cost}}</td>
+                    <td>{{.Qty}}</td>
+                    <td>
+                        {{if hasFiles .Photos.String}}
+                        {{$photos := parseJSON .Photos.String}}
+                        {{range $index, $photo := $photos}}
+                        {{if lt $index 2}}
+                        <div class="file-info photo-container">
+                            <img src="/uploads/{{.Path}}" alt="{{.Name}}" class="thumb" onclick="showPreview(this)">
+                        </div>
+                        {{end}}
+                        {{end}}
+                        {{if gt (len $photos) 2}}
+                        <div class="more-files">+{{subtract (len $photos) 2}} more</div>
+                        {{end}}
+                        {{end}}
+                    </td>
+                    <td>{{formatDate .UpdatedAt}}</td>
+                    <td class="action-links">
+                        <a href="/modify/{{.ID}}" class="action-btn btn-edit">Edit</a>
+                        <a href="/delete/{{.ID}}" class="action-btn btn-delete"
+                            onclick="return confirm('Are you sure?')">Delete</a>
+                    </td>
+                </tr>
+                {{else}}
+                <tr id="noProductsRow">
+                    <td colspan="9" style="text-align: center;">No products found</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="preview" class="preview" style="display: none;">
+        <span class="close-btn" onclick="hidePreview()">&times;</span>
+        <img id="previewImg" src="" alt="Preview">
+    </div>
+    <script src="/static/js/sorting.js"></script>
+    <script src="/static/js/image_preview.js"></script>
+      <script>
+      </script>
+
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Add Product</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .error-message {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .error-field {
+            border-color: #dc3545 !important;
+            background-color: #fff8f8;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Add New Product</h1>
+
+        {{if .Error}}
+        <div class="error-message">
+            {{.Error}}
+        </div>
+        {{end}}
+
+        <form action="/save" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Part No:</label>
+                <input type="text" name="partNo" required value="{{.PartNo}}" {{if .Error}}class="error-field" {{end}}>
+            </div>
+
+            <div class="form-group">
+                <label>Part Name:</label>
+                <!-- <textarea name="partName" required>{{.PartName}}</textarea> -->
+                <input type="text" name="partName" value="{{.PartName}}">
+            </div>
+            <div class="form-group">
+                <label>Description:</label>
+                <textarea name="description">{{.Description}}</textarea>
+                <!-- <input type="text" name="description" value="{{.Description}}"> -->
+            </div>
+
+            <div class="form-group">
+                <label>Material:</label>
+                <input type="text" name="material" value="{{.Material}}">
+            </div>
+
+            <div class="form-group">
+                <label>Material Size/Dimensions:</label>
+                <input type="text" name="materialSize" value="{{.MaterialSize}}">
+            </div>
+
+            <div class="form-group">
+                <label>Material Cost ($):</label>
+                <div class="cost-input">
+                    <input type="text" name="materialCost" value="{{.MaterialCost}}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Finishing Type:</label>
+                <input type="text" name="finishingType" value="{{.FinishingType}}">
+            </div>
+
+            <div class="form-group">
+                <label>Finishing Cost ($):</label>
+                <div class="cost-input">
+                    <input type="text" name="finishingCost" value="{{.FinishingCost}}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Part Cost:</label>
+                <!-- <textarea name="cost" required>{{.Cost}}</textarea> -->
+                <input type="text" name="cost" value="{{.Cost}}">
+            </div>
+
+            <!-- <div class="form-group">
+                    <label>Quantity:</label>
+                    <input type="number" name="qty" required value="{{.Qty}}">
+                </div> -->
+            <div class="form-group">
+                <label>Quantity:</label>
+                <input type="number" name="qty" required min="0" value="0" {{if .Qty}}value="{{.Qty}}" {{end}}>
+            </div>
+
+
+            <!-- <div class="form-group">
+                <label>Photos (JPG/PNG):</label>
+                <input type="file" name="photos" multiple accept=".jpg,.jpeg,.png">
+            </div> -->
+            <div class="form-group">
+                <label>Photos (JPG/PNG):</label>
+                <input type="file" name="photos" multiple accept=".jpg,.jpeg,.png" id="photoInput">
+                <div class="paste-area" id="pasteArea">
+                    Click or paste images here
+                    <small>(You can also paste from clipboard)</small>
+                </div>
+                <div class="preview-container" id="previewContainer"></div>
+            </div>
+
+            <div class="form-group">
+                <label>2D Drawing (PDF/DXF/DWG):</label>
+                <input type="file" name="drawings" multiple accept=".pdf,.dxf,.dwg">
+            </div>
+
+            <div class="form-group">
+                <label>3D CAD Files (STP/STEP/FCStd/IGS):</label>
+                <input type="file" name="cad" multiple accept=".stp,.step,.fcstd,.igs">
+            </div>
+
+            <div class="form-group">
+                <label>CNC Code Files (NC/TAP/MPF/SPF):</label>
+                <input type="file" name="cnc" multiple accept=".MC9,.nc,.tap,.mpf,.spf">
+                <div class="file-note">Supported formats: MC9, NC, TAP, MPF, SPF</div>
+            </div>
+
+            <div class="form-group">
+                <label>Invoice Files (PDF):</label>
+                <input type="file" name="invoice" multiple accept=".pdf">
+                <div class="file-note">Attach invoice documents (PDF format)</div>
+            </div>
+
+            <button type="submit">Save Product</button>
+            <a href="/" class="btn-cancel">Cancel</a>
+        </form>
+    </div>
+    <script src="/static/js/photo_paste.js"></script>
+    <script>
+
+    </script>
+</body>
+
+</html>
