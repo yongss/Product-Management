@@ -110,14 +110,74 @@ function updateFileList(container, files, category) {
     `).join('');
 }
 
-function removeFile(category, index) {
-    uploadedFiles[category].splice(index, 1);
-    const listId = category === 'photos' ? 'photosList' : 
-                  category === 'drawings' ? 'drawingsList' : 'cadList';
-    const container = document.getElementById(listId);
-    if (container) {
-        updateFileList(container, uploadedFiles[category], category);
+// function removeFile(category, index) {
+//     uploadedFiles[category].splice(index, 1);
+//     const listId = category === 'photos' ? 'photosList' : 
+//                   category === 'drawings' ? 'drawingsList' : 'cadList';
+//     const container = document.getElementById(listId);
+//     if (container) {
+//         updateFileList(container, uploadedFiles[category], category);
+//     }
+// }
+function removeFile(button, filename, type) {
+    if (!confirm(`Are you sure you want to remove "${filename}"?`)) {
+        return;
     }
+
+    const productIdInput = document.querySelector('input[name="id"]');
+    if (!productIdInput) {
+        alert('Error: Product ID not found');
+        return;
+    }
+    
+    const productId = productIdInput.value;
+    
+    fetch('/remove-file', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            filename: filename,
+            type: type,
+            productId: productId
+        })
+    })
+    .then(response => {
+        if (response.ok) {
+            // Remove the file item from the DOM
+            const fileItem = button.closest('.file-item');
+            if (fileItem) {
+                // Find the parent container before removing the item
+                const fileGroup = button.closest('.file-group');
+                
+                // Remove the file item
+                fileItem.remove();
+                
+                // Check if there are any remaining files in this section
+                if (fileGroup) {
+                    const container = fileGroup.querySelector('[id^="current"]');
+                    if (container) {
+                        const remainingFiles = container.querySelectorAll('.file-item');
+                        
+                        if (remainingFiles.length === 0) {
+                            container.innerHTML = '<p>No files uploaded</p>';
+                        }
+                    }
+                }
+            }
+            
+            alert('File removed successfully');
+        } else {
+            return response.text().then(text => {
+                throw new Error(text || 'Failed to remove file');
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error removing file: ' + error.message);
+    });
 }
 
 function validateForm() {

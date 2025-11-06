@@ -86,8 +86,6 @@ product-manager/
 
 Uploaded files are organized in the following structure:
 
-text
-
 ```text
 uploads/
 └── [part_number]/

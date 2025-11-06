@@ -49,6 +49,9 @@
             padding: 10px;
             border-radius: 4px;
             border: 1px solid #dee2e6;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .preview-image {
@@ -65,6 +68,29 @@
             border-top: 1px solid #dee2e6;
             margin-top: 20px;
             padding-top: 10px;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .btn-open {
+            background: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-open:hover {
+            background: #218838;
         }
     </style>
 </head>
@@ -112,7 +138,6 @@
 
                 <span class="label">Quantity:</span>
                 <span>{{.Qty}}</span>
-
             </div>
         </div>
 
@@ -126,7 +151,7 @@
                 <div class="file-card">
                     <img src="/uploads/{{.Path}}" alt="{{.Name}}" class="thumb" onclick="showPreview(this)">
                     <div>
-                        <a href="/uploads/{{.Path}}" class="download-link" target="_blank">{{.Name}}</a>
+                        <strong>{{.Name}}</strong>
                         <div class="file-size">{{.Size}}</div>
                     </div>
                 </div>
@@ -141,14 +166,19 @@
             <h2>2D Drawings</h2>
             {{if hasFiles .Drawing2D.String}}
             {{$drawings := parseJSON .Drawing2D.String}}
-            {{range $drawings}}
-            <div class="file-card">
-                <a href="/uploads/{{.Path}}" class="download-link" target="_blank">
-                    📄 {{.Name}}
-                </a>
-                <div class="file-size">{{.Size}}</div>
+            <div class="files-grid">
+                {{range $drawings}}
+                <div class="file-card">
+                    <div>
+                        <strong>📄 {{.Name}}</strong>
+                        <div class="file-size">{{.Size}}</div>
+                        <div class="file-actions">
+                            <button onclick="openFileDirectly('{{.Path}}')" class="btn-open">📂 Open</button>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
             </div>
-            {{end}}
             {{else}}
             <p>No drawings available</p>
             {{end}}
@@ -158,46 +188,60 @@
             <h2>3D CAD Files</h2>
             {{if hasFiles .Cad3D.String}}
             {{$cad := parseJSON .Cad3D.String}}
-            {{range $cad}}
-            <div class="file-card">
-                <a href="/uploads/{{.Path}}" class="download-link" target="_blank">
-                    📦 {{.Name}}
-                </a>
-                <div class="file-size">{{.Size}}</div>
+            <div class="files-grid">
+                {{range $cad}}
+                <div class="file-card">
+                    <div>
+                        <strong>📦 {{.Name}}</strong>
+                        <div class="file-size">{{.Size}}</div>
+                    </div>
+                </div>
+                {{end}}
             </div>
-            {{end}}
             {{else}}
             <p>No CAD files available</p>
             {{end}}
         </div>
+
         <div class="detail-section">
             <h2>CNC Code Files</h2>
             {{if hasFiles .CncCode.String}}
             {{$cnc := parseJSON .CncCode.String}}
-            {{range $cnc}}
-            <div class="file-card">
-                <a href="/uploads/{{.Path}}" class="download-link" target="_blank">
-                    🔧 {{.Name}}
-                </a>
-                <div class="file-size">{{.Size}}</div>
+            <div class="files-grid">
+                {{range $cnc}}
+                <div class="file-card">
+                    <div>
+                        <strong>🔧 {{.Name}}</strong>
+                        <div class="file-size">{{.Size}}</div>
+                        <div class="file-actions">
+                            <button onclick="openFileDirectly('{{.Path}}')" class="btn-open">📂 Open</button>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
             </div>
-            {{end}}
             {{else}}
             <p>No CNC code files available</p>
             {{end}}
         </div>
+
         <div class="detail-section">
             <h2>Invoice Files</h2>
             {{if hasFiles .Invoice.String}}
             {{$invoice := parseJSON .Invoice.String}}
-            {{range $invoice}}
-            <div class="file-card">
-                <a href="/uploads/{{.Path}}" class="download-link" target="_blank">
-                    📝 {{.Name}}
-                </a>
-                <div class="file-size">{{.Size}}</div>
+            <div class="files-grid">
+                {{range $invoice}}
+                <div class="file-card">
+                    <div>
+                        <strong>📝 {{.Name}}</strong>
+                        <div class="file-size">{{.Size}}</div>
+                        <div class="file-actions">
+                            <button onclick="openFileDirectly('{{.Path}}')" class="btn-open">📂 Open</button>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
             </div>
-            {{end}}
             {{else}}
             <p>No invoice files available</p>
             {{end}}
@@ -213,10 +257,10 @@
         <span class="close-btn" onclick="hidePreview()">&times;</span>
         <img id="previewImg" src="" alt="Preview">
     </div>
+
     <script src="/static/js/image_preview.js"></script>
     <script>
         function openUploadFolder(partNo) {
-            // Create a temporary link to trigger the folder opening
             fetch('/open-folder', {
                 method: 'POST',
                 headers: {
@@ -236,6 +280,31 @@
                 .catch(error => {
                     console.error('Error:', error);
                     alert('Failed to open folder: ' + error.message);
+                });
+        }
+
+        function openFileDirectly(filePath) {
+            fetch('/open-file', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ filePath: filePath })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to open file');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data.message);
+                    // Optionally show a brief notification
+                    // alert('File opened in default program');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to open file: ' + error.message);
                 });
         }
     </script>

@@ -198,6 +198,7 @@ func main() {
 	http.HandleFunc("/export", exportHandler)
 	http.HandleFunc("/open-folder", openFolderHandler)
 	http.HandleFunc("/api/products", apiProductsHandler)
+	http.HandleFunc("/open-file", openFileHandler)
 
 	go func() {
 		log.Println("Server starting on :8080")
@@ -1170,6 +1171,97 @@ func saveUploadedFile(r *http.Request, formField, uploadDir string) (string, err
 	return filename, nil
 }
 
+// func removeFileHandler(w http.ResponseWriter, r *http.Request) {
+// 	if r.Method != http.MethodPost {
+// 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+// 		return
+// 	}
+
+// 	var request struct {
+// 		Filename  string `json:"filename"`
+// 		Type      string `json:"type"`
+// 		ProductID string `json:"productId"`
+// 	}
+
+// 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+// 		http.Error(w, err.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	var partNo string
+// 	err := db.QueryRow("SELECT partNo FROM products WHERE id = ?", request.ProductID).Scan(&partNo)
+// 	if err != nil {
+// 		http.Error(w, "Error getting product: "+err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	var fileJSON string
+// 	var updateField string
+
+// 	switch request.Type {
+// 	case "photos":
+// 		updateField = "photos"
+// 	case "drawings":
+// 		updateField = "drawing_2d"
+// 	case "cad":
+// 		updateField = "cad_3d"
+// 	case "cnc":
+// 		updateField = "cnc_code"
+// 	case "invoice":
+// 		updateField = "invoice"
+// 	default:
+// 		http.Error(w, "Invalid file type", http.StatusBadRequest)
+// 		return
+// 	}
+
+// 	err = db.QueryRow("SELECT "+updateField+" FROM products WHERE id = ?", request.ProductID).Scan(&fileJSON)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	var files []FileInfo
+// 	if err := json.Unmarshal([]byte(fileJSON), &files); err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	var newFiles []FileInfo
+// 	var fileToRemove *FileInfo
+// 	for _, file := range files {
+// 		if file.Name == request.Filename {
+// 			fileToRemove = &file
+// 		} else {
+// 			newFiles = append(newFiles, file)
+// 		}
+// 	}
+
+// 	if fileToRemove == nil {
+// 		http.Error(w, "File not found", http.StatusNotFound)
+// 		return
+// 	}
+
+// 	fullPath := filepath.Join(uploadDir, fileToRemove.Path)
+// 	if err := os.Remove(fullPath); err != nil {
+// 		log.Printf("Warning: Could not remove file %s: %v", fullPath, err)
+// 	}
+
+// 	newFileJSON, err := json.Marshal(newFiles)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	_, err = db.Exec("UPDATE products SET "+updateField+" = ? WHERE id = ?", string(newFileJSON), request.ProductID)
+// 	if err != nil {
+// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+// 		return
+// 	}
+
+// 	w.WriteHeader(http.StatusOK)
+// 	w.Write([]byte("File removed successfully"))
+// }
+
 func removeFileHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -1183,20 +1275,25 @@ func removeFileHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		log.Printf("Error decoding request: %v", err)
+		http.Error(w, "Invalid request: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	log.Printf("Remove file request - ProductID: %s, Type: %s, Filename: %s",
+		request.ProductID, request.Type, request.Filename)
+
+	// Get partNo for the product
 	var partNo string
 	err := db.QueryRow("SELECT partNo FROM products WHERE id = ?", request.ProductID).Scan(&partNo)
 	if err != nil {
+		log.Printf("Error getting product: %v", err)
 		http.Error(w, "Error getting product: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	var fileJSON string
+	// Determine which field to update
 	var updateField string
-
 	switch request.Type {
 	case "photos":
 		updateField = "photos"
@@ -1209,56 +1306,94 @@ func removeFileHandler(w http.ResponseWriter, r *http.Request) {
 	case "invoice":
 		updateField = "invoice"
 	default:
+		log.Printf("Invalid file type: %s", request.Type)
 		http.Error(w, "Invalid file type", http.StatusBadRequest)
 		return
 	}
 
+	// Get current file list
+	var fileJSON string
 	err = db.QueryRow("SELECT "+updateField+" FROM products WHERE id = ?", request.ProductID).Scan(&fileJSON)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Error getting file list: %v", err)
+		http.Error(w, "Error getting file list: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	log.Printf("Current file JSON: %s", fileJSON)
+
+	// Parse current files
 	var files []FileInfo
-	if err := json.Unmarshal([]byte(fileJSON), &files); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	if fileJSON != "" && fileJSON != "null" {
+		if err := json.Unmarshal([]byte(fileJSON), &files); err != nil {
+			log.Printf("Error unmarshaling file list: %v", err)
+			http.Error(w, "Error parsing file list: "+err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
+	log.Printf("Parsed %d files", len(files))
+
+	// Find and remove the file from the list
 	var newFiles []FileInfo
 	var fileToRemove *FileInfo
-	for _, file := range files {
+	for i, file := range files {
+		log.Printf("Checking file %d: %s (looking for %s)", i, file.Name, request.Filename)
 		if file.Name == request.Filename {
-			fileToRemove = &file
+			fileToRemove = &files[i]
+			log.Printf("Found file to remove: %s at path: %s", file.Name, file.Path)
 		} else {
 			newFiles = append(newFiles, file)
 		}
 	}
 
 	if fileToRemove == nil {
-		http.Error(w, "File not found", http.StatusNotFound)
+		log.Printf("File not found in database: %s", request.Filename)
+		http.Error(w, "File not found in database", http.StatusNotFound)
 		return
 	}
 
+	// Delete physical file
 	fullPath := filepath.Join(uploadDir, fileToRemove.Path)
+	log.Printf("Attempting to delete file at: %s", fullPath)
+
 	if err := os.Remove(fullPath); err != nil {
-		log.Printf("Warning: Could not remove file %s: %v", fullPath, err)
+		if os.IsNotExist(err) {
+			log.Printf("File does not exist: %s", fullPath)
+		} else {
+			log.Printf("Warning: Could not remove file %s: %v", fullPath, err)
+		}
+	} else {
+		log.Printf("Successfully deleted physical file: %s", fullPath)
 	}
 
+	// Update database with new file list
 	newFileJSON, err := json.Marshal(newFiles)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Error marshaling new file list: %v", err)
+		http.Error(w, "Error updating file list: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	_, err = db.Exec("UPDATE products SET "+updateField+" = ? WHERE id = ?", string(newFileJSON), request.ProductID)
+	log.Printf("New file JSON: %s", string(newFileJSON))
+
+	query := fmt.Sprintf("UPDATE products SET %s = ? WHERE id = ?", updateField)
+	result, err := db.Exec(query, string(newFileJSON), request.ProductID)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Error updating database: %v", err)
+		http.Error(w, "Error updating database: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	rowsAffected, _ := result.RowsAffected()
+	log.Printf("Database updated successfully, rows affected: %d", rowsAffected)
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("File removed successfully"))
+	json.NewEncoder(w).Encode(map[string]string{
+		"status":  "success",
+		"message": "File removed successfully",
+	})
 }
 
 func deleteHandler(w http.ResponseWriter, r *http.Request) {
@@ -1440,4 +1575,56 @@ func openFolderHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain")
 	w.Write([]byte("Folder opened successfully"))
+}
+
+func openFileHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var request struct {
+		FilePath string `json:"filePath"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if request.FilePath == "" {
+		http.Error(w, "FilePath is required", http.StatusBadRequest)
+		return
+	}
+
+	// Construct full file path
+	fullPath := filepath.Join(uploadDir, request.FilePath)
+
+	// Check if file exists
+	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
+		http.Error(w, "File does not exist", http.StatusNotFound)
+		return
+	}
+
+	// Get absolute path
+	absPath, err := filepath.Abs(fullPath)
+	if err != nil {
+		http.Error(w, "Error getting absolute path", http.StatusInternalServerError)
+		return
+	}
+
+	// Open file with default Windows program
+	// For Windows, use 'cmd /c start "" "filepath"'
+	cmd := exec.Command("cmd", "/c", "start", "", absPath)
+	if err := cmd.Start(); err != nil {
+		log.Printf("Error opening file: %v", err)
+		http.Error(w, "Failed to open file: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"status":  "success",
+		"message": "File opened successfully",
+	})
 }
