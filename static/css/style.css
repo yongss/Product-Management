@@ -20,6 +20,7 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+/* ---------- General Layout ---------- */
 .actions {
   display: flex;
   justify-content: space-between;
@@ -39,46 +40,7 @@ body {
   box-sizing: border-box;
 }
 
-.action-links {
-  text-align: center;
-}
-
-.action-links .action-btn {
-  display: block;
-  width: 80px;
-  margin: 12px auto;
-  padding: 8px 0;
-  font-size: 16px;
-  font-weight: 500;
-  text-align: center;
-  text-decoration: none;
-  border-radius: 6px;
-  transition: background 0.2s;
-  color: white;
-}
-
-.btn-edit {
-  background-color: #007BFF;
-}
-
-.btn-edit:hover {
-  background-color: #0056b3;
-}
-
-.btn-delete {
-  background-color: #dc3545;
-}
-
-.btn-delete:hover {
-  background-color: #a71d2a;
-}
-
-.search-form {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
+/* ---------- Buttons ---------- */
 .btn {
   background: #007bff;
   color: white;
@@ -105,11 +67,11 @@ body {
   border-radius: 4px;
 }
 
+/* ---------- Table ---------- */
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  overflow: visible;
 }
 
 th,
@@ -117,7 +79,6 @@ td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
-  overflow: visible !important;
   position: relative;
 }
 
@@ -138,10 +99,7 @@ th a:hover {
   color: #007bff;
 }
 
-tbody tr {
-  position: relative;
-}
-
+/* ---------- Form Elements ---------- */
 .form-group {
   margin-bottom: 15px;
 }
@@ -170,8 +128,7 @@ button {
   cursor: pointer;
 }
 
-/* REMOVED DUPLICATE .thumb STYLES - ONLY USE .photo-container img.thumb */
-
+/* ---------- Preview Overlay (click-to-view modal) ---------- */
 .preview {
   display: none;
   position: fixed;
@@ -208,17 +165,7 @@ button {
   color: #bbb;
 }
 
-.file-path {
-  padding: 5px;
-  margin: 5px 0;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 12px;
-  word-break: break-all;
-}
-
+/* ---------- File Display ---------- */
 .file-item {
   display: block;
   margin-top: 8px;
@@ -245,126 +192,63 @@ button {
   background: #c82333;
 }
 
-.file-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-  padding: 8px;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  flex-wrap: wrap;
-  gap: 10px;
-}
 
-.file-info img {
-  margin-right: 10px;
-}
 
-.file-info small {
-  color: #6c757d;
-  font-size: 0.85em;
-}
 
-.download-link {
-  font-size: 12px;
-  color: #007bff;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.download-link:hover {
-  text-decoration: underline;
-}
-
-.cnc-file {
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  background-color: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 4px;
-  margin-bottom: 10px;
-}
-
-.cnc-file .download-link {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.timestamp {
-  color: #6c757d;
-  font-size: 0.9em;
-  font-family: monospace;
-  background-color: #f8f9fa;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid #dee2e6;
-  display: inline-block;
-}
-
-/* PHOTO CONTAINER - THIS IS THE CORRECT STYLE */
-.photo-container {
-  padding: 0;
-  background: none;
-  border: none;
-  display: inline-block;
-  margin: 2px;
-  position: relative;
-}
-
-.photo-container img.thumb {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  margin: 0;
-  border: 1px solid #ddd;
+/* ---- FORCE: no in-place hover zoom on thumbnails ---- */
+img.thumb,
+.photo-container img.thumb,
+.thumb,
+td img {
+  width: 50px !important;
+  height: 50px !important;
+  object-fit: cover !important;
+  border: 2px solid #ddd;
   border-radius: 4px;
   padding: 2px;
   cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-  position: relative;
-  z-index: 1;
+  /* Disable ALL transform and scale effects */
+  transform: none !important;
+  scale: 1 !important;
+  transition: border-color 0.2s ease !important;
+  will-change: auto !important;
 }
 
-/* THIS IS THE HOVER EFFECT - 5x size as you specified */
-.photo-container img.thumb:hover {
-  transform: scale(5);
-  z-index: 1000;
+img.thumb:hover,
+.photo-container img.thumb:hover,
+.thumb:hover,
+td img:hover {
+  transform: none !important;
+  scale: 1 !important;
+  box-shadow: none !important;
   border-color: #007bff;
-  box-shadow: 0 8px 16px rgba(0, 123, 255, 0.5);
+  /* Optional: add a subtle border color change */
 }
 
-.sort-link {
-  text-decoration: none;
-  color: #333;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
+/* Prevent any parent containers from scaling */
+.photo-container,
+.file-info {
+  transform: none !important;
+  transition: none !important;
 }
 
-.sort-arrow {
-  display: inline-block;
-  line-height: 1;
-  text-align: center;
+.photo-container:hover,
+.file-info:hover {
+  transform: none !important;
+  scale: 1 !important;
 }
 
-th a {
-  color: inherit;
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  white-space: nowrap;
+/* Hide any legacy hover preview widgets */
+.thumb-preview,
+.hover-box,
+.image-hover-preview,
+#thumb-preview,
+#hover-box,
+#image-hover-preview {
+  display: none !important;
 }
 
-th a:hover {
-  color: #007bff;
-}
-
+/* ---------- Paste & Preview Area ---------- */
 .paste-area {
   border: 2px dashed #ccc;
   padding: 20px;
@@ -397,16 +281,7 @@ th a:hover {
   border-radius: 4px;
 }
 
-.more-files {
-  font-size: 0.85em;
-  color: #666;
-  margin-top: 5px;
-  padding: 2px 5px;
-  background: #f0f0f0;
-  border-radius: 3px;
-  display: inline-block;
-}
-
+/* ---------- File Groups ---------- */
 .file-group {
   border: 2px solid rgb(199, 199, 199);
   border-radius: 6px;
@@ -420,7 +295,7 @@ th a:hover {
   margin-top: 10px;
 }
 
-/* Responsive design */
+/* ---------- Responsive ---------- */
 @media (max-width: 768px) {
   .actions {
     flex-direction: column;
@@ -436,38 +311,4 @@ th a:hover {
     display: block;
     overflow-x: auto;
   }
-
-  td[data-label="CNC Code"],
-  td[data-label="Updated At"] {
-    min-width: 150px;
-  }
-}
-
-table,
-tbody,
-tr,
-td {
-  overflow: visible !important;
-}
-
-/* Simple direct thumbnail styling */
-img.thumb {
-  width: 50px !important;
-  height: 50px !important;
-  object-fit: cover !important;
-  border: 2px solid #ddd !important;
-  border-radius: 4px !important;
-  padding: 2px !important;
-  cursor: pointer !important;
-  transition: all 0.3s ease !important;
-  position: relative !important;
-  z-index: 1 !important;
-}
-
-/* Direct hover effect - no parent selectors */
-img.thumb:hover {
-  transform: scale(5) !important;
-  z-index: 9999 !important;
-  border-color: #007bff !important;
-  box-shadow: 0 10px 30px rgba(0, 123, 255, 0.8) !important;
 }
