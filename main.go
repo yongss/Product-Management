@@ -953,7 +953,8 @@ func handleFileUpload(r *http.Request, fieldName, subDir string) []FileInfo {
 		defer file.Close()
 
 		filename := filepath.Base(fileHeader.Filename)
-		filename = strings.ReplaceAll(filename, " ", "_")
+		// // Keep original filename with spaces - only get base name
+		// filename = strings.ReplaceAll(filename, " ", "_")
 		filePath := filepath.Join(partNo, subDir, filename)
 		fullPath := filepath.Join(uploadDir, filePath)
 
@@ -1010,7 +1011,8 @@ func handleFileUploadWithPartNo(r *http.Request, fieldName, subDir, partNo strin
 		defer file.Close()
 
 		filename := filepath.Base(fileHeader.Filename)
-		filename = strings.ReplaceAll(filename, " ", "_")
+		// Keep original filename with spaces - only get base name
+		// filename = strings.ReplaceAll(filename, " ", "_")
 
 		fullPath := filepath.Join(partNoPath, filename)
 
@@ -1123,6 +1125,12 @@ func hasFiles(s string) bool {
 	}
 	return len(arr) > 0
 }
+
+// func sanitizeFileNameLegacy(name string) string {
+// 	name = filepath.Base(name)
+// 	name = strings.ReplaceAll(name, " ", "_")
+// 	return name
+// }
 
 func sanitizeFileName(name string) string {
 	name = filepath.Base(name)
