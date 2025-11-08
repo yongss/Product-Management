@@ -46,8 +46,10 @@
 <body>
     <div class="container">
         <h1>Modify Product</h1>
+
+
         <!-- Sticky action buttons -->
-        <div class="form-actions">
+        <!-- <div class="form-actions">
 
         <form action="/update" method="POST" enctype="multipart/form-data">
                 <button type="submit" class="btn-update">Update Product</button>
@@ -59,7 +61,32 @@
             <input type="hidden" name="existingDrawings" id="existingDrawings" value="{{.Drawing2D}}">
             <input type="hidden" name="existingCad" id="existingCad" value="{{.Cad3D}}">
             <input type="hidden" name="existingCnc" id="existingCnc" value="{{.CncCode}}">
-            <input type="hidden" name="existingInvoice" id="existingInvoice" value="{{.Invoice}}">
+            <input type="hidden" name="existingInvoice" id="existingInvoice" value="{{.Invoice}}"> -->
+           
+<!-- Open form BEFORE form-actions -->
+<form id="modifyForm" action="/update" method="POST" enctype="multipart/form-data">
+
+    <!-- Sticky action buttons now live INSIDE the form -->
+    <div class="form-actions">
+        <button type="submit" class="btn-update">Update Product</button>
+        <a href="/" class="btn-cancel">Cancel</a>
+    </div>
+
+    <input type="hidden" name="id" value="{{.ID}}">
+    <input type="hidden" name="existingPhotos" id="existingPhotos" value="{{.Photos}}">
+    <input type="hidden" name="existingDrawings" id="existingDrawings" value="{{.Drawing2D}}">
+    <input type="hidden" name="existingCad" id="existingCad" value="{{.Cad3D}}">
+    <input type="hidden" name="existingCnc" id="existingCnc" value="{{.CncCode}}">
+    <input type="hidden" name="existingInvoice" id="existingInvoice" value="{{.Invoice}}">
+
+    <input type="hidden" name="photosAction" id="photosAction" value="keepBoth">
+    <input type="hidden" name="drawingsAction" id="drawingsAction" value="keepBoth">
+    <input type="hidden" name="cadAction" id="cadAction" value="keepBoth">
+    <input type="hidden" name="cncAction" id="cncAction" value="keepBoth">
+    <input type="hidden" name="invoiceAction" id="invoiceAction" value="keepBoth">
+
+
+
             <br>
             <div class="form-group">
                 <label>Part No:</label>
@@ -275,6 +302,17 @@
     <script src="/static/js/photo_paste.js"></script>
     <script src="/static/js/add.js"></script>
     <script src="/static/js/duplicate_file_warning.js"></script>
+    <script src="/static/js/debug_helper.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // When coming back from update, force all thumbnails to re-fetch
+            document.querySelectorAll('img.thumb').forEach(img => {
+                const cleanSrc = img.src.split('?')[0];
+                img.src = cleanSrc + '?v=' + Date.now();
+            });
+        });
+    </script>
+    
 </body>
 
 </html>

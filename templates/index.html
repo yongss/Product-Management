@@ -131,7 +131,8 @@
                         {{range $index, $photo := $photos}}
                         {{if lt $index 2}}
                         <div class="file-info photo-container">
-                            <img src="/uploads/{{.Path}}" alt="{{.Name}}" class="thumb" onclick="showPreview(this)">
+                            <img src="/uploads/{{.Path}}" alt="{{.Name}}" class="thumb" 
+                                onclick="showPreview(this)">
                         </div>
                         {{end}}
                         {{end}}
@@ -168,6 +169,16 @@
 <!-- Make sure ONLY this script controls hover preview -->
 <script src="/static/js/hover_preview.js" defer></script>
 <script src="/static/js/image_preview.js" defer></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // When coming back from update, force all thumbnails to re-fetch
+            document.querySelectorAll('img.thumb').forEach(img => {
+                const cleanSrc = img.src.split('?')[0];
+                img.src = cleanSrc + '?v=' + Date.now();
+            });
+        });
+    </script>
 
      
 </body>

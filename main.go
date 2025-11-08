@@ -640,7 +640,8 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := r.ParseMultipartForm(32 << 20)
+	// max file 100 MB
+	err := r.ParseMultipartForm(100 << 20)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -788,7 +789,8 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := r.ParseMultipartForm(10 << 20); err != nil {
+	// make uploads robust for bigger files
+	if err := r.ParseMultipartForm(100 << 20); err != nil {
 		http.Error(w, "Error parsing form: "+err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -804,6 +806,13 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 	materialCost := r.FormValue("materialCost")
 	finishingType := r.FormValue("finishingType")
 	finishingCost := r.FormValue("finishingCost")
+
+	// Action flags coming from hidden inputs in modify.html (default to keepBoth)
+	photosAction := defaultAction(r.FormValue("photosAction"))
+	drawingsAction := defaultAction(r.FormValue("drawingsAction"))
+	cadAction := defaultAction(r.FormValue("cadAction"))
+	cncAction := defaultAction(r.FormValue("cncAction"))
+	invoiceAction := defaultAction(r.FormValue("invoiceAction"))
 
 	var existingPhotos, existingDrawings, existingCad, existingCnc, existingInvoice string
 	err := db.QueryRow(`
@@ -822,18 +831,21 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	photoInfo := handleFileUploadWithPartNo(r, "photos", "photos", newPartNo)
-	drawingInfo := handleFileUploadWithPartNo(r, "drawings", "drawings", newPartNo)
-	cadInfo := handleFileUploadWithPartNo(r, "cad", "cad", newPartNo)
-	cncInfo := handleFileUploadWithPartNo(r, "cnc", "cnc", newPartNo)
-	invoiceInfo := handleFileUploadWithPartNo(r, "invoice", "invoice", newPartNo)
+	// Upload new files with action-aware behavior
+	photoInfo := handleFileUploadWithPartNoAndAction(r, "photos", "photos", newPartNo, photosAction)
+	drawingInfo := handleFileUploadWithPartNoAndAction(r, "drawings", "drawings", newPartNo, drawingsAction)
+	cadInfo := handleFileUploadWithPartNoAndAction(r, "cad", "cad", newPartNo, cadAction)
+	cncInfo := handleFileUploadWithPartNoAndAction(r, "cnc", "cnc", newPartNo, cncAction)
+	invoiceInfo := handleFileUploadWithPartNoAndAction(r, "invoice", "invoice", newPartNo, invoiceAction)
 
-	photos := mergeFileData(existingPhotos, photoInfo)
-	drawings := mergeFileData(existingDrawings, drawingInfo)
-	cad := mergeFileData(existingCad, cadInfo)
-	cnc := mergeFileData(existingCnc, cncInfo)
-	invoice := mergeFileData(existingInvoice, invoiceInfo)
+	// Merge DB JSON taking action into account
+	photos := mergeFileDataWithAction(existingPhotos, photoInfo, photosAction)
+	drawings := mergeFileDataWithAction(existingDrawings, drawingInfo, drawingsAction)
+	cad := mergeFileDataWithAction(existingCad, cadInfo, cadAction)
+	cnc := mergeFileDataWithAction(existingCnc, cncInfo, cncAction)
+	invoice := mergeFileDataWithAction(existingInvoice, invoiceInfo, invoiceAction)
 
+	// If part number changed, move folder + rewrite paths (keep your existing behavior)
 	if oldPartNo != newPartNo {
 		oldPath := filepath.Join(uploadDir, sanitizeFilename(oldPartNo))
 		newPath := filepath.Join(uploadDir, sanitizeFilename(newPartNo))
@@ -843,12 +855,10 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Error creating new directory: "+err.Error(), http.StatusInternalServerError)
 				return
 			}
-
 			if err := os.Rename(oldPath, newPath); err != nil {
 				http.Error(w, "Error moving directory: "+err.Error(), http.StatusInternalServerError)
 				return
 			}
-
 			updateFilePaths := func(fileJSON, oldPartNo, newPartNo string) string {
 				if fileJSON == "" {
 					return ""
@@ -867,7 +877,6 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 				newJSON, _ := json.Marshal(files)
 				return string(newJSON)
 			}
-
 			photos = updateFilePaths(photos, oldPartNo, newPartNo)
 			drawings = updateFilePaths(drawings, oldPartNo, newPartNo)
 			cad = updateFilePaths(cad, oldPartNo, newPartNo)
@@ -879,11 +888,8 @@ func updateHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "Error creating new partNo directory: "+err.Error(), http.StatusInternalServerError)
 				return
 			}
-
-			subDirs := []string{"photos", "drawings", "cad", "cnc", "invoice"}
-			for _, dir := range subDirs {
-				dirPath := filepath.Join(newPartNoDir, dir)
-				if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
+			for _, dir := range []string{"photos", "drawings", "cad", "cnc", "invoice"} {
+				if err := os.MkdirAll(filepath.Join(newPartNoDir, dir), os.ModePerm); err != nil {
 					http.Error(w, "Error creating "+dir+" directory: "+err.Error(), http.StatusInternalServerError)
 					return
 				}
@@ -1064,11 +1070,9 @@ func handleFileUploadWithPartNo(r *http.Request, fieldName, subDir, partNo strin
 func mergeFileData(existingJSON string, newFiles []FileInfo) string {
 	var existing []FileInfo
 	if existingJSON != "" {
-		json.Unmarshal([]byte(existingJSON), &existing)
+		_ = json.Unmarshal([]byte(existingJSON), &existing)
 	}
-
-	existing = append(existing, newFiles...)
-
+	existing = append(existing, newFiles...) // <— fix typo
 	merged, err := json.Marshal(existing)
 	if err != nil {
 		log.Printf("Error marshaling file data: %v", err)
@@ -1178,97 +1182,6 @@ func saveUploadedFile(r *http.Request, formField, uploadDir string) (string, err
 
 	return filename, nil
 }
-
-// func removeFileHandler(w http.ResponseWriter, r *http.Request) {
-// 	if r.Method != http.MethodPost {
-// 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-// 		return
-// 	}
-
-// 	var request struct {
-// 		Filename  string `json:"filename"`
-// 		Type      string `json:"type"`
-// 		ProductID string `json:"productId"`
-// 	}
-
-// 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	var partNo string
-// 	err := db.QueryRow("SELECT partNo FROM products WHERE id = ?", request.ProductID).Scan(&partNo)
-// 	if err != nil {
-// 		http.Error(w, "Error getting product: "+err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	var fileJSON string
-// 	var updateField string
-
-// 	switch request.Type {
-// 	case "photos":
-// 		updateField = "photos"
-// 	case "drawings":
-// 		updateField = "drawing_2d"
-// 	case "cad":
-// 		updateField = "cad_3d"
-// 	case "cnc":
-// 		updateField = "cnc_code"
-// 	case "invoice":
-// 		updateField = "invoice"
-// 	default:
-// 		http.Error(w, "Invalid file type", http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	err = db.QueryRow("SELECT "+updateField+" FROM products WHERE id = ?", request.ProductID).Scan(&fileJSON)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	var files []FileInfo
-// 	if err := json.Unmarshal([]byte(fileJSON), &files); err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	var newFiles []FileInfo
-// 	var fileToRemove *FileInfo
-// 	for _, file := range files {
-// 		if file.Name == request.Filename {
-// 			fileToRemove = &file
-// 		} else {
-// 			newFiles = append(newFiles, file)
-// 		}
-// 	}
-
-// 	if fileToRemove == nil {
-// 		http.Error(w, "File not found", http.StatusNotFound)
-// 		return
-// 	}
-
-// 	fullPath := filepath.Join(uploadDir, fileToRemove.Path)
-// 	if err := os.Remove(fullPath); err != nil {
-// 		log.Printf("Warning: Could not remove file %s: %v", fullPath, err)
-// 	}
-
-// 	newFileJSON, err := json.Marshal(newFiles)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	_, err = db.Exec("UPDATE products SET "+updateField+" = ? WHERE id = ?", string(newFileJSON), request.ProductID)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-// 		return
-// 	}
-
-// 	w.WriteHeader(http.StatusOK)
-// 	w.Write([]byte("File removed successfully"))
-// }
 
 func removeFileHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -1635,4 +1548,138 @@ func openFileHandler(w http.ResponseWriter, r *http.Request) {
 		"status":  "success",
 		"message": "File opened successfully",
 	})
+}
+
+func defaultAction(a string) string {
+	a = strings.ToLower(strings.TrimSpace(a))
+	switch a {
+	case "replace":
+		return "replace"
+	case "keepboth", "keep_both", "keep both", "keepboth()":
+		return "keepBoth"
+	default:
+		return "keepBoth"
+	}
+}
+
+func handleFileUploadWithPartNoAndAction(r *http.Request, fieldName, subDir, partNo, action string) []FileInfo {
+	var fileInfo []FileInfo
+	if r.MultipartForm == nil {
+		return fileInfo
+	}
+
+	files := r.MultipartForm.File[fieldName]
+	if len(files) == 0 {
+		return fileInfo
+	}
+
+	partNoPath := filepath.Join(uploadDir, sanitizeFilename(partNo), subDir)
+	if err := os.MkdirAll(partNoPath, os.ModePerm); err != nil {
+		log.Printf("Error creating directory %s: %v", partNoPath, err)
+		return fileInfo
+	}
+
+	act := strings.ToLower(strings.TrimSpace(action)) // <— normalize here too
+
+	for _, fileHeader := range files {
+		src, err := fileHeader.Open()
+		if err != nil {
+			log.Printf("Error opening file: %v", err)
+			continue
+		}
+		defer src.Close()
+
+		filename := filepath.Base(fileHeader.Filename)
+		fullPath := filepath.Join(partNoPath, filename)
+
+		// if act == "keepboth" || action == "keepBoth" {
+		// 	ext := filepath.Ext(filename)
+		// 	base := strings.TrimSuffix(filename, ext)
+		// 	for i := 1; ; i++ {
+		// 		candidate := fmt.Sprintf("%s(%d)%s", base, i, ext)
+		// 		candidatePath := filepath.Join(partNoPath, candidate)
+		// 		if _, err := os.Stat(candidatePath); os.IsNotExist(err) {
+		// 			filename = candidate
+		// 			fullPath = candidatePath
+		// 			break
+		// 		}
+		// 	}
+		// } // act == "replace": keep same name, Create() will truncate
+
+		if act == "keepboth" || action == "keepBoth" {
+			// Only suffix if the exact filename already exists
+			if _, err := os.Stat(fullPath); err == nil {
+				// file exists -> find first available (1), (2), ...
+				ext := filepath.Ext(filename)
+				base := strings.TrimSuffix(filename, ext)
+				for i := 1; ; i++ {
+					candidate := fmt.Sprintf("%s(%d)%s", base, i, ext)
+					candidatePath := filepath.Join(partNoPath, candidate)
+					if _, err := os.Stat(candidatePath); os.IsNotExist(err) {
+						filename = candidate
+						fullPath = candidatePath
+						break
+					}
+				}
+			} else if !os.IsNotExist(err) {
+				// Unexpected stat error: log and fall back to original name
+				log.Printf("stat error for %s: %v", fullPath, err)
+			}
+		}
+
+		dst, err := os.Create(fullPath) // truncates if exists
+		if err != nil {
+			log.Printf("Error creating file: %v", err)
+			continue
+		}
+		if _, err := io.Copy(dst, src); err != nil {
+			dst.Close()
+			log.Printf("Error copying file content: %v", err)
+			continue
+		}
+		dst.Close()
+
+		relativePath := filepath.Join(sanitizeFilename(partNo), subDir, filename)
+		fileInfo = append(fileInfo, FileInfo{
+			Name: filename,
+			Size: formatFileSize(fileHeader.Size),
+			Type: fileHeader.Header.Get("Content-Type"),
+			Path: filepath.ToSlash(relativePath),
+		})
+	}
+	return fileInfo
+}
+
+func mergeFileDataWithAction(existingJSON string, newFiles []FileInfo, action string) string {
+	var existing []FileInfo
+	if existingJSON != "" && existingJSON != "null" {
+		_ = json.Unmarshal([]byte(existingJSON), &existing)
+	}
+
+	if strings.ToLower(strings.TrimSpace(action)) == "replace" && len(newFiles) > 0 {
+		// Drop any existing entries that have the same filename as a newly uploaded one
+		newNames := make(map[string]struct{}, len(newFiles))
+		for _, nf := range newFiles {
+			newNames[strings.ToLower(nf.Name)] = struct{}{}
+		}
+		filtered := existing[:0]
+		for _, ex := range existing {
+			if _, clash := newNames[strings.ToLower(ex.Name)]; !clash {
+				filtered = append(filtered, ex)
+			}
+		}
+		existing = filtered
+	}
+
+	existing = append(existing, newFiles...) // <— fix the typo here
+
+	merged, err := json.Marshal(existing)
+	if err != nil {
+		log.Printf("Error marshaling file data: %v", err)
+		if existingJSON == "" {
+			return "[]"
+		}
+		return existingJSON
+	}
+	return string(merged)
 }
