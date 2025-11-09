@@ -20,6 +20,11 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+
+
+
+
+
 /* ---------- General Layout ---------- */
 .actions {
   display: flex;
@@ -50,14 +55,14 @@ body {
   display: inline-block;
 }
 
-.btn-cancel {
+/* .btn-cancel {
   background: #6c757d;
   color: white;
   padding: 10px 15px;
   text-decoration: none;
   border-radius: 4px;
   margin-left: 10px;
-}
+} */
 
 .btn-clear {
   background: #dc3545;
@@ -67,7 +72,55 @@ body {
   border-radius: 4px;
 }
 
-/* ---------- Table ---------- */
+ .form-actions {
+   position: sticky;
+   top: 0;
+   background: #fff;
+   padding: 10px 10px 10px 0;
+   border-bottom: 1px solid #ccc;
+   display: flex;
+   gap: 10px;
+   z-index: 1000;
+ }
+ .btn-update {
+   background: #28a745;
+   color: #fff;
+   padding: 8px 16px;
+   border: none;
+   border-radius: 4px;
+   cursor: pointer;
+ }
+ .btn-update:hover {
+   background: #218838;
+ }
+ .btn-cancel {
+   background: #dc3545;
+   color: #fff;
+   padding: 8px 16px;
+   text-decoration: none;
+   border-radius: 4px;
+ }
+ .btn-cancel:hover {
+   background: #c82333;
+ }
+
+ .btn-open {
+   background: #28a745;
+   color: white;
+   padding: 5px 10px;
+   border: none;
+   border-radius: 4px;
+   cursor: pointer;
+   font-size: 12px;
+   text-decoration: none;
+   display: inline-block;
+   text-align: center;
+ }
+ .btn-open:hover {
+   background: #218838;
+ }
+
+-------- Table ---------- */
 table {
   width: 100%;
   border-collapse: collapse;

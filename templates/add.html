@@ -4,7 +4,7 @@
 <head>
     <title>Add Product</title>
     <link rel="stylesheet" href="/static/css/style.css">
-    <style>
+    <!-- <style>
         .error-message {
             color: #dc3545;
             background-color: #f8d7da;
@@ -18,6 +18,58 @@
             border-color: #dc3545 !important;
             background-color: #fff8f8;
         }
+    </style> -->
+    <style>
+        .error-message {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    
+        .error-field {
+            border-color: #dc3545 !important;
+            background-color: #fff8f8;
+        }
+    
+        /* Sticky actions (match modify.html pattern) */
+        /* .form-actions {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            padding: 10px 10px 10px 0;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+    
+        .form-actions .btn-submit-changes {
+            background: #28a745;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    
+        .form-actions .btn-submit-changes:hover {
+            background: #218838;
+        }
+    
+        .form-actions .btn-cancel {
+            background: #dc3545;
+            color: #fff;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+    
+        .form-actions .btn-cancel:hover {
+            background: #c82333;
+        } */
     </style>
 </head>
 
@@ -32,6 +84,11 @@
         {{end}}
 
         <form action="/save" method="POST" enctype="multipart/form-data">
+            <!-- Sticky action buttons at the top -->
+            <div class="form-actions">
+                <button type="submit" class="btn-save">Save Product</button>
+                <a href="/" class="btn-cancel">Cancel</a>
+            </div>
             <div class="form-group">
                 <label>Part No:</label>
                 <input type="text" name="partNo" required value="{{.PartNo}}" {{if .Error}}class="error-field" {{end}}>
@@ -129,8 +186,8 @@
                 <div class="file-note">Attach invoice documents (PDF format)</div>
             </div>
 
-            <button type="submit">Save Product</button>
-            <a href="/" class="btn-cancel">Cancel</a>
+            <!-- <button type="submit">Save Product</button>
+            <a href="/" class="btn-cancel">Cancel</a> -->
         </form>
     </div>
     <script src="/static/js/photo_paste.js"></script>
