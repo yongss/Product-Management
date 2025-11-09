@@ -5,18 +5,18 @@
     <title>Product Detail</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
-        .detail-container {
+        /* .detail-container {
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
-        }
+        } */
 
-        .detail-header {
+        /* .detail-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
-        }
+        } */
 
         .detail-section {
             background: #f8f9fa;
@@ -32,19 +32,19 @@
             margin-bottom: 15px;
         }
 
-        .label {
+        /* .label {
             font-weight: bold;
             color: #495057;
-        }
+        } */
 
-        .files-grid {
+        /* .files-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 15px;
             margin-top: 10px;
-        }
+        } */
 
-        .file-card {
+        /* .file-card {
             background: white;
             padding: 10px;
             border-radius: 4px;
@@ -52,7 +52,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-        }
+        } */
 
         .preview-image {
             width: 100%;
@@ -62,19 +62,19 @@
             margin-bottom: 10px;
         }
 
-        .timestamps {
+        /* .timestamps {
             font-size: 0.9em;
             color: #6c757d;
             border-top: 1px solid #dee2e6;
             margin-top: 20px;
             padding-top: 10px;
-        }
+        } */
 
-        .file-actions {
+        /* .file-actions {
             display: flex;
             gap: 5px;
             margin-top: 5px;
-        }
+        } */
 
         /* .btn-open {
             background: #28a745;
@@ -120,6 +120,27 @@
             border-radius: 4px;
         }
         .form-actions .btn-cancel:hover { background: #c82333; } */
+
+/* 
+        .file-name {
+        color: black;
+        font-weight: 700;
+        font-size: 0.9em;
+        line-height: 1.3;
+        }
+
+
+        .file-size {
+        color: #555;
+        font-size: 0.85em;
+        line-height: 1.3;
+        }
+
+        .file-date {
+        display: block;
+        color: #888;
+        font-size: 0.8em;
+        } */
     </style>
 </head>
 
@@ -188,8 +209,13 @@
                 <div class="file-card">
                     <img src="/uploads/{{.Path}}" alt="{{.Name}}" class="thumb" onclick="showPreview(this)">
                     <div>
-                        <strong>{{.Name}}</strong>
-                        <div class="file-size">{{.Size}}</div>
+                        <div class="file-name">{{.Name}}</div>
+                        <div class="file-size">
+                            {{.Size}}
+                            {{if .Date}}<br><span class="file-date">{{.Date}}</span>{{else}}{{with fileModDate .Path}}<br><span
+                                class="file-date">{{.}}</span>{{end}}{{end}}
+
+                        </div>
                     </div>
                 </div>
                 {{end}}
@@ -205,15 +231,32 @@
             {{$drawings := parseJSON .Drawing2D.String}}
             <div class="files-grid">
                 {{range $drawings}}
-                <div class="file-card">
+                <!-- <div class="file-card">
                     <div>
-                        <strong>📄 {{.Name}}</strong>
-                        <div class="file-size">{{.Size}}</div>
-                        <div class="file-actions">
-                            <button onclick="openFileDirectly('{{.Path}}')" class="btn-open">📂 Open</button>
+                        <a href="/uploads/{{.Path}}" class="open-link file-name" target="_blank">{{.Name}}</a>
+                        <div class="file-size">
+                            {{.Size}}
+                            {{if .Date}}<br><span class="file-date">{{.Date}}</span>{{else}}{{with fileModDate .Path}}<br><span
+                                class="file-date">{{.}}</span>{{end}}{{end}}
+
                         </div>
                     </div>
-                </div>
+                </div> -->
+                <a href="/uploads/{{.Path}}" class="file-card-link" target="_blank">
+                    <div class="file-card">
+                        <div>
+                            <div class="file-name">{{.Name}}</div>
+                            <div class="file-size">
+                                {{.Size}}
+                                {{if .Date}}
+                                <br><span class="file-date">{{.Date}}</span>
+                                {{else}}
+                                {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                                {{end}}
+                            </div>
+                        </div>
+                    </div>
+                </a>
                 {{end}}
             </div>
             {{else}}
@@ -227,12 +270,21 @@
             {{$cad := parseJSON .Cad3D.String}}
             <div class="files-grid">
                 {{range $cad}}
-                <div class="file-card">
-                    <div>
-                        <strong>📦 {{.Name}}</strong>
-                        <div class="file-size">{{.Size}}</div>
+                <a href="/uploads/{{.Path}}" class="file-card-link" target="_blank">
+                    <div class="file-card">
+                        <div>
+                            <div class="file-name">{{.Name}}</div>
+                            <div class="file-size">
+                                {{.Size}}
+                                {{if .Date}}
+                                <br><span class="file-date">{{.Date}}</span>
+                                {{else}}
+                                {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                                {{end}}
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </a>
                 {{end}}
             </div>
             {{else}}
@@ -246,15 +298,21 @@
             {{$cnc := parseJSON .CncCode.String}}
             <div class="files-grid">
                 {{range $cnc}}
-                <div class="file-card">
-                    <div>
-                        <strong>🔧 {{.Name}}</strong>
-                        <div class="file-size">{{.Size}}</div>
-                        <div class="file-actions">
-                            <button onclick="openFileDirectly('{{.Path}}')" class="btn-open">📂 Open</button>
+                <a href="/uploads/{{.Path}}" class="file-card-link" target="_blank">
+                    <div class="file-card">
+                        <div>
+                            <div class="file-name">{{.Name}}</div>
+                            <div class="file-size">
+                                {{.Size}}
+                                {{if .Date}}
+                                <br><span class="file-date">{{.Date}}</span>
+                                {{else}}
+                                {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                                {{end}}
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
                 {{end}}
             </div>
             {{else}}
@@ -268,15 +326,21 @@
             {{$invoice := parseJSON .Invoice.String}}
             <div class="files-grid">
                 {{range $invoice}}
-                <div class="file-card">
-                    <div>
-                        <strong>📝 {{.Name}}</strong>
-                        <div class="file-size">{{.Size}}</div>
-                        <div class="file-actions">
-                            <button onclick="openFileDirectly('{{.Path}}')" class="btn-open">📂 Open</button>
+                <a href="/uploads/{{.Path}}" class="file-card-link" target="_blank">
+                    <div class="file-card">
+                        <div>
+                            <div class="file-name">{{.Name}}</div>
+                            <div class="file-size">
+                                {{.Size}}
+                                {{if .Date}}
+                                <br><span class="file-date">{{.Date}}</span>
+                                {{else}}
+                                {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                                {{end}}
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
                 {{end}}
             </div>
             {{else}}

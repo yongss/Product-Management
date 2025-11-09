@@ -89,6 +89,7 @@
                 <button type="submit" class="btn-save">Save Product</button>
                 <a href="/" class="btn-cancel">Cancel</a>
             </div>
+            <br>
             <div class="form-group">
                 <label>Part No:</label>
                 <input type="text" name="partNo" required value="{{.PartNo}}" {{if .Error}}class="error-field" {{end}}>
@@ -156,7 +157,7 @@
             </div> -->
             <div class="form-group">
                 <label>Photos (JPG/PNG):</label>
-                <input type="file" name="photos" multiple accept=".jpg,.jpeg,.png" id="photoInput">
+                <input type="file" name="photos" multiple accept=".jpg,.jpeg,.png,.gif" id="photoInput">
                 <div class="paste-area" id="pasteArea">
                     Click or paste images here
                     <small>(You can also paste from clipboard)</small>
@@ -171,18 +172,18 @@
 
             <div class="form-group">
                 <label>3D CAD Files (STP/STEP/FCStd/IGS):</label>
-                <input type="file" name="cad" multiple accept=".stp,.step,.fcstd,.igs">
+                <input type="file" name="cad" multiple accept=".stp,.step,.igs,.iges,.sat,.x_t,.x_b,.sldprt,.sldasm,.ipt,.iam,.prt,.asm">
             </div>
 
             <div class="form-group">
                 <label>CNC Code Files (NC/TAP/MPF/SPF):</label>
-                <input type="file" name="cnc" multiple accept=".MC9,.nc,.tap,.mpf,.spf,.mcam">
+                <input type="file" name="cnc" multiple accept=".mc9,.nc,.tap,.mpf,.spf,.mcam,.mcx,.mcx-5,.mcx-6,.mmd,.pst">
                 <div class="file-note">Supported formats: MC9, NC, TAP, MPF, SPF</div>
             </div>
 
             <div class="form-group">
                 <label>Invoice Files (PDF):</label>
-                <input type="file" name="invoice" multiple accept=".pdf">
+                <input type="file" name="invoice" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.rtf,.odt,.ods,.odp">
                 <div class="file-note">Attach invoice documents (PDF format)</div>
             </div>
 

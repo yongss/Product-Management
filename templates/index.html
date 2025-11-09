@@ -21,7 +21,7 @@
             position: sticky;
             top: 0;
             background-color: white;
-            padding: 15px 0;
+            padding: 10px 0;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             z-index: 100;
             margin-bottom: 10px;
@@ -104,11 +104,13 @@
             <tbody id="productsTableBody">
                 {{range .Products}}
                 <tr class="product-row">
-                    <td>
-                        <a href="/detail/{{.PartNo}}">{{.PartNo}}</a>
+                    <td class="text-wrap-20">
+                        <a href="/detail/{{.PartNo}}" class="open-link">{{.PartNo}}</a>
                     </td>
-                    <td>{{.PartName}}</td>
-                    <td>{{.Description}}</td>
+                    <td class="text-wrap-20">{{.PartName}}</td>
+                    <td class="text-wrap-20">{{.Description}}</td>
+                    <!-- <td>{{.PartName}}</td>
+                    <td>{{.Description}}</td> -->
         
         
                     <td class="material-info">

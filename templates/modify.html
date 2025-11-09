@@ -5,40 +5,60 @@
     <title>Modify Product</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <style>
-        /* .form-actions {
-            position: sticky;
-            top: 0;
+        /* Match detail.html's card/grid layout for side-by-side files */
+        /* .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        } */
+
+        /* .file-card {
             background: #fff;
-            padding: 10px 10px 10px 0;
-            border-bottom: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
             display: flex;
-            gap: 10px;
-            z-index: 1000;
-        }
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        } */
 
-        .form-actions .btn-update {
-            background: #28a745;
-            color: #fff;
-            padding: 8px 16px;
-            border: none;
+        /* .file-card img.thumb {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
             border-radius: 4px;
-            cursor: pointer;
+            margin-bottom: 10px;
+        } */
+
+        /* .file-actions,
+        .file-card .inline-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 5px;
+        } */
+
+        /* .file-card .inline-actions {
+            justify-content: right;
+        } */
+
+        /* .file-name {
+            font-weight: 700;
+            font-size: 0.9em;
+            line-height: 1.3;
         }
 
-        .form-actions .btn-update:hover {
-            background: #218838;
+        .file-size {
+            color: #555;
+            font-size: 0.85em;
+            line-height: 1.3;
         }
 
-        .form-actions .btn-cancel {
-            background: #dc3545;
-            color: #fff;
-            padding: 8px 16px;
-            text-decoration: none;
-            border-radius: 4px;
-        }
-
-        .form-actions .btn-cancel:hover {
-            background: #c82333;
+        .file-date {
+            display: block;
+            color: #888;
+            font-size: 0.8em;
         } */
     </style>
 </head>
@@ -47,11 +67,11 @@
     <div class="container">
         <h1>Modify Product</h1>
 
+        <!-- Open form BEFORE form-actions -->
+        <form id="modifyForm" action="/update" method="POST" enctype="multipart/form-data">
 
-        <!-- Sticky action buttons -->
-        <!-- <div class="form-actions">
-
-        <form action="/update" method="POST" enctype="multipart/form-data">
+            <!-- Sticky action buttons now live INSIDE the form -->
+            <div class="form-actions">
                 <button type="submit" class="btn-update">Update Product</button>
                 <a href="/" class="btn-cancel">Cancel</a>
             </div>
@@ -61,92 +81,83 @@
             <input type="hidden" name="existingDrawings" id="existingDrawings" value="{{.Drawing2D}}">
             <input type="hidden" name="existingCad" id="existingCad" value="{{.Cad3D}}">
             <input type="hidden" name="existingCnc" id="existingCnc" value="{{.CncCode}}">
-            <input type="hidden" name="existingInvoice" id="existingInvoice" value="{{.Invoice}}"> -->
-           
-<!-- Open form BEFORE form-actions -->
-<form id="modifyForm" action="/update" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="existingInvoice" id="existingInvoice" value="{{.Invoice}}">
 
-    <!-- Sticky action buttons now live INSIDE the form -->
-    <div class="form-actions">
-        <button type="submit" class="btn-update">Update Product</button>
-        <a href="/" class="btn-cancel">Cancel</a>
-    </div>
-
-    <input type="hidden" name="id" value="{{.ID}}">
-    <input type="hidden" name="existingPhotos" id="existingPhotos" value="{{.Photos}}">
-    <input type="hidden" name="existingDrawings" id="existingDrawings" value="{{.Drawing2D}}">
-    <input type="hidden" name="existingCad" id="existingCad" value="{{.Cad3D}}">
-    <input type="hidden" name="existingCnc" id="existingCnc" value="{{.CncCode}}">
-    <input type="hidden" name="existingInvoice" id="existingInvoice" value="{{.Invoice}}">
-
-    <input type="hidden" name="photosAction" id="photosAction" value="keepBoth">
-    <input type="hidden" name="drawingsAction" id="drawingsAction" value="keepBoth">
-    <input type="hidden" name="cadAction" id="cadAction" value="keepBoth">
-    <input type="hidden" name="cncAction" id="cncAction" value="keepBoth">
-    <input type="hidden" name="invoiceAction" id="invoiceAction" value="keepBoth">
-
-
+            <input type="hidden" name="photosAction" id="photosAction" value="keepBoth">
+            <input type="hidden" name="drawingsAction" id="drawingsAction" value="keepBoth">
+            <input type="hidden" name="cadAction" id="cadAction" value="keepBoth">
+            <input type="hidden" name="cncAction" id="cncAction" value="keepBoth">
+            <input type="hidden" name="invoiceAction" id="invoiceAction" value="keepBoth">
 
             <br>
             <div class="form-group">
-                <label>Part No:</label>
+                <label  class="label">Part No:</label>
                 <input type="text" name="partNo" value="{{.PartNo}}" required>
             </div>
 
             <div class="form-group">
-                <label>Part Name:</label>
+                <label  class="label">Part Name:</label>
                 <input type="text" name="partName" value="{{.PartName}}">
             </div>
 
             <div class="form-group">
-                <label>Description:</label>
+                <label  class="label">Description:</label>
                 <textarea name="description">{{.Description}}</textarea>
             </div>
 
             <div class="form-group">
-                <label>Material:</label>
+                <label  class="label">Material:</label>
                 <input type="text" name="material" value="{{.Material}}">
             </div>
             <div class="form-group">
-                <label>Material Size/Dimensions:</label>
+                <label  class="label">Material Size/Dimensions:</label>
                 <input type="text" name="materialSize" value="{{.MaterialSize}}">
             </div>
             <div class="form-group">
-                <label>Material Cost ($):</label>
+                <label  class="label">Material Cost ($):</label>
                 <input type="text" name="materialCost" value="{{.MaterialCost}}">
             </div>
             <div class="form-group">
-                <label>Finishing Type:</label>
+                <label  class="label">Finishing Type:</label>
                 <input type="text" name="finishingType" value="{{.FinishingType}}">
             </div>
             <div class="form-group">
-                <label>Finishing Cost ($):</label>
+                <label  class="label">Finishing Cost ($):</label>
                 <input type="text" name="finishingCost" value="{{.FinishingCost}}">
             </div>
 
             <div class="form-group">
-                <label>Part Cost:</label>
+                <label  class="label">Part Cost:</label>
                 <input type="number" name="cost" value="{{.Cost}}">
             </div>
 
             <div class="form-group">
-                <label>Quantity:</label>
+                <label  class="label">Quantity:</label>
                 <input type="number" name="qty" value="{{.Qty}}" required>
             </div>
 
             <!-- ============================= FILE GROUPS (Photos, Drawings, CAD, CNC, Invoice) ============================= -->
             <div class="file-group">
-                <label>Current Photos:</label>
-                <div id="currentPhotos">
+                <h2>Current Photos:</h2>
+                <div id="currentPhotos" class="files-grid">
                     {{if hasFiles .Photos.String}}
                     {{$photos := parseJSON .Photos.String}}
                     {{range $index, $photo := $photos}}
-                    <div class="file-item" data-filename="{{$photo.Name}}">
+                    <div class="file-card" data-filename="{{$photo.Name}}">
                         <img src="/uploads/{{$photo.Path}}" alt="{{$photo.Name}}" class="thumb"
                             onclick="showPreview(this)">
                         <div>
-                            <strong>{{$photo.Name}}</strong><br>
-                            <small>{{$photo.Size}}</small>
+                            <div class="file-name">{{$photo.Name}}</div>
+                            <div class="file-size" style="padding-left:0;">
+                                {{$photo.Size}}
+                                {{if $photo.Date}}
+                                <br><span class="file-date">{{$photo.Date}}</span>
+                                {{else}}
+                                {{with fileModDate $photo.Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                                {{end}}
+                            </div>
+                        </div>
+                        <div class="inline-actions">
                             <button type="button" class="btn-remove"
                                 onclick="removeFile(this, '{{$photo.Name}}', 'photos')">Remove</button>
                         </div>
@@ -157,9 +168,9 @@
                     {{end}}
                 </div>
                 <br>
-                <label>Add New Photos (JPG/PNG):</label>
+                <label  class="label">Add New Photos (JPG/PNG):</label>
                 <div class="file-item">
-                    <input type="file" name="photos" multiple accept=".jpg,.jpeg,.png" id="photoInput">
+                    <input type="file" name="photos" multiple accept=".jpg,.jpeg,.png,.gif" id="photoInput">
                 </div>
                 <div class="paste-area" id="pasteArea">
                     Click or paste images here
@@ -170,19 +181,32 @@
 
             <!-- 2D Drawings -->
             <div class="file-group">
-                <label>Current 2D Drawings:</label>
-                <div id="currentDrawings">
+                <h2>Current 2D Drawings:</h2>
+                <div id="currentDrawings" class="files-grid">
                     {{if hasFiles .Drawing2D.String}}
                     {{$drawings := parseJSON .Drawing2D.String}}
                     {{range $index, $drawing := $drawings}}
-                    <div class="file-item" data-filename="{{$drawing.Name}}">
-                        <a href="/uploads/{{$drawing.Path}}" class="download-link" target="_blank">
-                            📄 {{$drawing.Name}}
-                        </a>
-                        <br>
-                        <small>{{$drawing.Size}}</small>
-                        <button type="button" class="btn-remove"
-                            onclick="removeFile(this, '{{$drawing.Name}}', 'drawings')">Remove</button>
+                    <div class="file-card" data-filename="{{$drawing.Name}}">
+                        <div>
+                            <!-- <div class="file-name">📄 {{$drawing.Name}}</div> -->
+                            <!-- <a href="/uploads/{{$drawing.Path}}" class="open-link file-name" target="_blank">
+                                📄 {{$drawing.Name}}
+                            </a> -->
+                            <a href="/uploads/{{$drawing.Path}}" class="open-link file-name" target="_blank">{{$drawing.Name}}</a>
+                            <div class="file-size">
+                                {{$drawing.Size}}
+                                {{if $drawing.Date}}
+                                <br><span class="file-date">{{$drawing.Date}}</span>
+                                {{else}}
+                                {{with fileModDate $drawing.Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                                {{end}}
+                            </div>
+                        </div>
+                        <div class="inline-actions">
+                            <!-- <a href="/uploads/{{$drawing.Path}}" class="btn" target="_blank">Open</a> -->
+                            <button type="button" class="btn-remove"
+                                onclick="removeFile(this, '{{$drawing.Name}}', 'drawings')">Remove</button>
+                        </div>
                     </div>
                     {{end}}
                     {{else}}
@@ -190,7 +214,7 @@
                     {{end}}
                 </div>
                 <br>
-                <label>Add New 2D Drawing (PDF/DXF/DWG):</label>
+                <label  class="label">Add New 2D Drawing (PDF/DXF/DWG):</label>
                 <div class="file-item">
                     <input type="file" name="drawings" multiple accept=".pdf,.dxf,.dwg">
                 </div>
@@ -198,19 +222,32 @@
 
             <!-- 3D CAD -->
             <div class="file-group">
-                <label>Current 3D CAD Files:</label>
-                <div id="currentCad">
+                <h2>Current 3D CAD Files:</h2>
+                <div id="currentCad" class="files-grid">
                     {{if hasFiles .Cad3D.String}}
                     {{$cad := parseJSON .Cad3D.String}}
                     {{range $index, $cadFile := $cad}}
-                    <div class="file-item" data-filename="{{$cadFile.Name}}">
-                        <a href="/uploads/{{$cadFile.Path}}" class="download-link" target="_blank">
+                    <div class="file-card" data-filename="{{$cadFile.Name}}">
+                        <div>
+                            <!-- <div class="file-name">⚙️ {{$cadFile.Name}}</div> -->
+                        <!-- <a href="/uploads/{{$cadFile.Path}}" class="open-link file-name" target="_blank">
                             ⚙️ {{$cadFile.Name}}
-                        </a>
-                        <br>
-                        <small>{{$cadFile.Size}}</small>
-                        <button type="button" class="btn-remove"
-                            onclick="removeFile(this, '{{$cadFile.Name}}', 'cad')">Remove</button>
+                        </a> -->
+                        <a href="/uploads/{{$cadFile.Path}}" class="open-link file-name" target="_blank">{{$cadFile.Name}}</a>
+                            <div class="file-size">
+                                {{$cadFile.Size}}
+                                {{if $cadFile.Date}}
+                                <br><span class="file-date">{{$cadFile.Date}}</span>
+                                {{else}}
+                                {{with fileModDate $cadFile.Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                                {{end}}
+                            </div>
+                        </div>
+                        <div class="inline-actions">
+                            <!-- <a href="/uploads/{{$cadFile.Path}}" class="btn" target="_blank">Open</a> -->
+                            <button type="button" class="btn-remove"
+                                onclick="removeFile(this, '{{$cadFile.Name}}', 'cad')">Remove</button>
+                        </div>
                     </div>
                     {{end}}
                     {{else}}
@@ -218,27 +255,41 @@
                     {{end}}
                 </div>
                 <br>
-                <label>Add New 3D CAD Files :</label>
+                <label  class="label">Add New 3D CAD Files :</label>
                 <div class="file-item">
-                    <input type="file" name="cad" multiple>
+                    <input type="file" name="cad" multiple
+                        accept=".stp,.step,.igs,.iges,.sat,.x_t,.x_b,.sldprt,.sldasm,.ipt,.iam,.prt,.asm">
                 </div>
             </div>
 
             <!-- CNC -->
             <div class="file-group">
-                <label>Current CNC Code Files:</label>
-                <div id="currentCnc">
+                <h2>Current CNC Code Files:</h2>
+                <div id="currentCnc" class="files-grid">
                     {{if hasFiles .CncCode.String}}
                     {{$cnc := parseJSON .CncCode.String}}
                     {{range $index, $cncFile := $cnc}}
-                    <div class="file-item" data-filename="{{$cncFile.Name}}">
-                        <a href="/uploads/{{$cncFile.Path}}" class="download-link" target="_blank">
+                    <div class="file-card" data-filename="{{$cncFile.Name}}">
+                        <div>
+                            <!-- <div class="file-name">🔧 {{$cncFile.Name}}</div> -->
+                        <!-- <a href="/uploads/{{$cncFile.Path}}" class="open-link file-name" target="_blank">
                             🔧 {{$cncFile.Name}}
-                        </a>
-                        <br>
-                        <small>{{$cncFile.Size}}</small>
-                        <button type="button" class="btn-remove"
-                            onclick="removeFile(this, '{{$cncFile.Name}}', 'cnc')">Remove</button>
+                        </a> -->
+                        <a href="/uploads/{{$cncFile.Path}}" class="open-link file-name" target="_blank">{{$cncFile.Name}}</a>
+                            <div class="file-size">
+                                {{$cncFile.Size}}
+                                {{if $cncFile.Date}}
+                                <br><span class="file-date">{{$cncFile.Date}}</span>
+                                {{else}}
+                                {{with fileModDate $cncFile.Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                                {{end}}
+                            </div>
+                        </div>
+                        <div class="inline-actions">
+                            <!-- <a href="/uploads/{{$cncFile.Path}}" class="btn" target="_blank">Open</a> -->
+                            <button type="button" class="btn-remove"
+                                onclick="removeFile(this, '{{$cncFile.Name}}', 'cnc')">Remove</button>
+                        </div>
                     </div>
                     {{end}}
                     {{else}}
@@ -246,27 +297,41 @@
                     {{end}}
                 </div>
                 <br>
-                <label>Add New CNC Code Files :</label>
+                <label  class="label">Add New CNC Code Files :</label>
                 <div class="file-item">
-                    <input type="file" name="cnc" multiple>
+                    <input type="file" name="cnc" multiple
+                        accept=".mc9,.nc,.tap,.mpf,.spf,.mcam,.mcx,.mcx-5,.mcx-6,.mmd,.pst">
                 </div>
             </div>
 
             <!-- Invoice -->
             <div class="file-group">
-                <label>Current Invoice Files:</label>
-                <div id="currentInvoice">
+                <h2>Current Invoice Files:</h2>
+                <div id="currentInvoice" class="files-grid">
                     {{if hasFiles .Invoice.String}}
                     {{$invoice := parseJSON .Invoice.String}}
                     {{range $index, $invoiceFile := $invoice}}
-                    <div class="file-item" data-filename="{{$invoiceFile.Name}}">
-                        <a href="/uploads/{{$invoiceFile.Path}}" class="download-link" target="_blank">
+                    <div class="file-card" data-filename="{{$invoiceFile.Name}}">
+                        <div>
+                            <!-- <div class="file-name">📝 {{$invoiceFile.Name}}</div> -->
+                        <!-- <a href="/uploads/{{$invoiceFile.Path}}" class="open-link file-name" target="_blank">
                             📝 {{$invoiceFile.Name}}
-                        </a>
-                        <br>
-                        <small>{{$invoiceFile.Size}}</small>
-                        <button type="button" class="btn-remove"
-                            onclick="removeFile(this, '{{$invoiceFile.Name}}', 'invoice')">Remove</button>
+                        </a> -->
+                        <a href="/uploads/{{$invoiceFile.Path}}" class="open-link file-name" target="_blank">{{$invoiceFile.Name}}</a>
+                            <div class="file-size">
+                                {{$invoiceFile.Size}}
+                                {{if $invoiceFile.Date}}
+                                <br><span class="file-date">{{$invoiceFile.Date}}</span>
+                                {{else}}
+                                {{with fileModDate $invoiceFile.Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                                {{end}}
+                            </div>
+                        </div>
+                        <div class="inline-actions">
+                            <!-- <a href="/uploads/{{$invoiceFile.Path}}" class="btn" target="_blank">Open</a> -->
+                            <button type="button" class="btn-remove"
+                                onclick="removeFile(this, '{{$invoiceFile.Name}}', 'invoice')">Remove</button>
+                        </div>
                     </div>
                     {{end}}
                     {{else}}
@@ -274,20 +339,21 @@
                     {{end}}
                 </div>
                 <br>
-                <label>Add New Invoice Files (PDF):</label>
+                <label  class="label">Add New Invoice Files (PDF):</label>
                 <div class="file-item">
-                    <input type="file" name="invoice" multiple accept=".pdf">
+                    <input type="file" name="invoice" multiple
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.rtf,.odt,.ods,.odp">
                 </div>
             </div>
 
             <!-- Metadata -->
             <div class="form-group">
-                <label>Created At:</label>
+                <label  class="label">Created At:</label>
                 <div class="file-info">{{.CreatedAt}}</div>
             </div>
 
             <div class="form-group">
-                <label>Last Updated:</label>
+                <label  class="label">Last Updated:</label>
                 <div class="file-info">{{.UpdatedAt}}</div>
             </div>
         </form>
@@ -302,7 +368,6 @@
     <script src="/static/js/photo_paste.js"></script>
     <script src="/static/js/add.js"></script>
     <script src="/static/js/duplicate_file_warning.js"></script>
-    <!-- <script src="/static/js/debug_helper.js"></script> -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // When coming back from update, force all thumbnails to re-fetch
@@ -312,7 +377,7 @@
             });
         });
     </script>
-    
+
 </body>
 
 </html>

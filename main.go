@@ -26,6 +26,7 @@ type FileInfo struct {
 	Size string `json:"size"`
 	Type string `json:"type"`
 	Path string `json:"path"`
+	Date string `json:"date,omitempty"`
 }
 
 type Product struct {
@@ -109,6 +110,13 @@ var funcMap = template.FuncMap{
 	"nullString": func(ns sql.NullString) string {
 		if ns.Valid {
 			return ns.String
+		}
+		return ""
+	},
+	"fileModDate": func(p string) string {
+		full := filepath.Join(uploadDir, p)
+		if fi, err := os.Stat(full); err == nil {
+			return fi.ModTime().Format("2006-01-02 15:04")
 		}
 		return ""
 	},
@@ -981,6 +989,7 @@ func handleFileUpload(r *http.Request, fieldName, subDir string) []FileInfo {
 			Size: formatFileSize(fileHeader.Size),
 			Type: fileHeader.Header.Get("Content-Type"),
 			Path: filepath.ToSlash(filePath),
+			Date: time.Now().Format("2006-01-02 15:04"),
 		}
 		fileInfo = append(fileInfo, info)
 
@@ -1058,6 +1067,7 @@ func handleFileUploadWithPartNo(r *http.Request, fieldName, subDir, partNo strin
 			Size: formatFileSize(fileHeader.Size),
 			Type: fileHeader.Header.Get("Content-Type"),
 			Path: filepath.ToSlash(relativePath),
+			Date: time.Now().Format("2006-01-02 15:04"),
 		}
 		fileInfo = append(fileInfo, info)
 
@@ -1645,6 +1655,7 @@ func handleFileUploadWithPartNoAndAction(r *http.Request, fieldName, subDir, par
 			Size: formatFileSize(fileHeader.Size),
 			Type: fileHeader.Header.Get("Content-Type"),
 			Path: filepath.ToSlash(relativePath),
+			Date: time.Now().Format("2006-01-02 15:04"),
 		})
 	}
 	return fileInfo
