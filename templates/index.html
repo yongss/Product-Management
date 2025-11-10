@@ -41,7 +41,8 @@
             </div>
             <form action="/search" method="GET" class="search-form">
                 <input type="text" name="q" placeholder="Search by Part No or Part Name or Description or Material" value="{{.SearchQuery}}">
-                <button type="submit">Search</button>
+                <!-- <button type="submit">Search</button> -->
+                <input class="btn" type="submit" value="Search">
                 {{if .SearchQuery}}
                 <a href="/" class="btn-clear">Clear</a>
                 {{end}}
@@ -145,8 +146,8 @@
                     </td>
                     <td>{{formatDate .UpdatedAt}}</td>
                     <td class="action-links">
-                        <a href="/modify/{{.ID}}" class="action-btn btn-edit">Edit</a>
-                        <a href="/delete/{{.ID}}" class="action-btn btn-delete"
+                        <a href="/modify/{{.ID}}" class="btn-edit btn-special-width">Edit</a>
+                        <a href="/delete/{{.ID}}" class="btn-remove btn-special-width"
                             onclick="return confirm('Are you sure?')">Delete</a>
                     </td>
                 </tr>
@@ -167,6 +168,8 @@
 <!-- <script src="/static/js/photo_paste.js"></script> -->
 <!-- <script src="/static/js/add.js"></script> -->
 <!-- <script src="/static/js/duplicate_file_warning.js"></script> -->
+<script src="/static/js/sorting.js"></script>
+
 
 <!-- Make sure ONLY this script controls hover preview -->
 <script src="/static/js/hover_preview.js" defer></script>

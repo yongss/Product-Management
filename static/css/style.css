@@ -48,32 +48,12 @@ body {
   box-sizing: border-box;
 }
 
-/* ---------- Buttons ---------- */
-.btn {
-  background: #007bff;
-  color: white;
-  padding: 10px 15px;
-  text-decoration: none;
-  border-radius: 4px;
+.action-links a {
   display: inline-block;
+  margin: 5px 0;
 }
 
-/* .btn-cancel {
-  background: #6c757d;
-  color: white;
-  padding: 10px 15px;
-  text-decoration: none;
-  border-radius: 4px;
-  margin-left: 10px;
-} */
-
-.btn-clear {
-  background: #dc3545;
-  color: white;
-  padding: 10px 15px;
-  text-decoration: none;
-  border-radius: 4px;
-}
+/* ---------- Buttons ---------- */
 
  .form-actions {
    position: sticky;
@@ -85,6 +65,34 @@ body {
    gap: 10px;
    z-index: 1000;
  }
+
+
+/* .btn {
+  background: #007bff;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.btn-edit {
+  background: #007bff;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.btn-clear {
+  background: #dc3545;
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  border-radius: 4px;
+}
+
  .btn-update {
    background: #28a745;
    color: #fff;
@@ -96,15 +104,24 @@ body {
  .btn-update:hover {
    background: #218838;
  }
+
  .btn-cancel {
    background: #dc3545;
    color: #fff;
+   border: 1px solid #fff;
    padding: 8px 16px;
    text-decoration: none;
    border-radius: 4px;
+   cursor: pointer;
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   font-size: 14px;
  }
+
  .btn-cancel:hover {
    background: #c82333;
+   border-color: #fff;
  }
 
  .btn-open {
@@ -116,7 +133,6 @@ body {
    cursor: pointer;
    font-size: 12px;
    text-decoration: none;
-   /* display: inline-block; */
    text-align: center;
  }
 
@@ -131,7 +147,6 @@ body {
    padding: 5px 10px;
    border-radius: 4px;
    cursor: pointer;
-   /* margin-left: 10px; */
    font-size: 12px;
    text-decoration: none;
    text-align: center;
@@ -139,7 +154,100 @@ body {
 
  .btn-remove:hover {
    background: #c82333;
- }
+ } */
+
+/* button {
+  background: #28a745;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+} */
+
+
+/* ---------- Common Button Base ---------- */
+.btn,
+.btn-cancel,
+.btn-open,
+.btn-edit,
+.btn-update,
+.btn-remove,
+.btn-clear {
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  font-size: 14px;
+  border: none;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-special-width {
+  padding : 8px 0;
+  width: 60px;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+/* ---------- Individual Variants ---------- */
+
+/* Default (blue) */
+.btn,
+.btn-edit {
+  background: #007bff;
+  color: white;
+}
+
+.btn:hover,
+.btn-edit:hover {
+  background: #0069d9;
+}
+
+/* Success / Green (e.g., Update, Open Folder) */
+.btn-update,
+.btn-open {
+  background: #28a745;
+  color: white;
+}
+
+.btn-update:hover,
+.btn-open:hover {
+  background: #218838;
+}
+
+/* Danger / Red (e.g., Cancel, Remove, Clear) */
+.btn-cancel,
+.btn-remove{
+  background: #dc3545;
+  color: white;
+}
+
+.btn-cancel:hover,
+.btn-remove:hover{
+  background: #c82333;
+}
+
+.btn-cancel,
+.btn-clear{
+  background: #f87171;
+  color: #ffffff;
+}
+
+.btn-cancel:hover,
+.btn-clear:hover {
+  background: #ef4444;
+}
+
+
 
 -------- Table ---------- */
 table {
@@ -193,14 +301,6 @@ textarea {
   border-radius: 4px;
 }
 
-button {
-  background: #28a745;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
 
 td.text-wrap-20 {
   max-width: 200px;
