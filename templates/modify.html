@@ -87,7 +87,7 @@
                     {{if hasFiles .Photos.String}}
                     {{$photos := parseJSON .Photos.String}}
                     {{range $index, $photo := $photos}}
-                    <div class="file-card" data-filename="{{$photo.Name}}">
+                    <div class="file-item file-card" data-filename="{{$photo.Name}}">
                         <img src="/uploads/{{$photo.Path}}" alt="{{$photo.Name}}" class="thumb"
                             onclick="showPreview(this)">
                         <div>
@@ -130,7 +130,7 @@
                     {{if hasFiles .Drawing2D.String}}
                     {{$drawings := parseJSON .Drawing2D.String}}
                     {{range $index, $drawing := $drawings}}
-                    <div class="file-card" data-filename="{{$drawing.Name}}">
+                    <div class="file-item file-card" data-filename="{{$drawing.Name}}">
                         <div>
                             <!-- <div class="file-name">📄 {{$drawing.Name}}</div> -->
                             <!-- <a href="/uploads/{{$drawing.Path}}" class="open-link file-name" target="_blank">
@@ -171,7 +171,7 @@
                     {{if hasFiles .Cad3D.String}}
                     {{$cad := parseJSON .Cad3D.String}}
                     {{range $index, $cadFile := $cad}}
-                    <div class="file-card" data-filename="{{$cadFile.Name}}">
+                    <div class="file-item file-card" data-filename="{{$cadFile.Name}}">
                         <div>
                             <!-- <div class="file-name">⚙️ {{$cadFile.Name}}</div> -->
                         <!-- <a href="/uploads/{{$cadFile.Path}}" class="open-link file-name" target="_blank">
@@ -213,7 +213,7 @@
                     {{if hasFiles .CncCode.String}}
                     {{$cnc := parseJSON .CncCode.String}}
                     {{range $index, $cncFile := $cnc}}
-                    <div class="file-card" data-filename="{{$cncFile.Name}}">
+                    <div class="file-item file-card" data-filename="{{$cncFile.Name}}">
                         <div>
                             <!-- <div class="file-name">🔧 {{$cncFile.Name}}</div> -->
                         <!-- <a href="/uploads/{{$cncFile.Path}}" class="open-link file-name" target="_blank">
@@ -255,7 +255,7 @@
                     {{if hasFiles .Invoice.String}}
                     {{$invoice := parseJSON .Invoice.String}}
                     {{range $index, $invoiceFile := $invoice}}
-                    <div class="file-card" data-filename="{{$invoiceFile.Name}}">
+                    <div class="file-item file-card" data-filename="{{$invoiceFile.Name}}">
                         <div>
                             <!-- <div class="file-name">📝 {{$invoiceFile.Name}}</div> -->
                         <!-- <a href="/uploads/{{$invoiceFile.Path}}" class="open-link file-name" target="_blank">
