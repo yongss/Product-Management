@@ -4,7 +4,41 @@
 <head>
     <title>Modify Product</title>
     <link rel="stylesheet" href="/static/css/style.css">
-    <style></style>
+    <style>
+        .file-card-clickable {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .file-card-clickable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: #f0f8ff;
+        }
+
+        .btn-open-file {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            margin-right: 5px;
+        }
+
+        .btn-open-file:hover {
+            background-color: #218838;
+        }
+
+        .inline-actions {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -35,48 +69,48 @@
 
             <br>
             <div class="form-group">
-                <label  class="label">Part No:</label>
+                <label class="label">Part No:</label>
                 <input type="text" name="partNo" value="{{.PartNo}}" required>
             </div>
 
             <div class="form-group">
-                <label  class="label">Part Name:</label>
+                <label class="label">Part Name:</label>
                 <input type="text" name="partName" value="{{.PartName}}">
             </div>
 
             <div class="form-group">
-                <label  class="label">Description:</label>
+                <label class="label">Description:</label>
                 <textarea name="description">{{.Description}}</textarea>
             </div>
 
             <div class="form-group">
-                <label  class="label">Material:</label>
+                <label class="label">Material:</label>
                 <input type="text" name="material" value="{{.Material}}">
             </div>
             <div class="form-group">
-                <label  class="label">Material Size/Dimensions:</label>
+                <label class="label">Material Size/Dimensions:</label>
                 <input type="text" name="materialSize" value="{{.MaterialSize}}">
             </div>
             <div class="form-group">
-                <label  class="label">Material Cost ($):</label>
+                <label class="label">Material Cost ($):</label>
                 <input type="text" name="materialCost" value="{{.MaterialCost}}">
             </div>
             <div class="form-group">
-                <label  class="label">Finishing Type:</label>
+                <label class="label">Finishing Type:</label>
                 <input type="text" name="finishingType" value="{{.FinishingType}}">
             </div>
             <div class="form-group">
-                <label  class="label">Finishing Cost ($):</label>
+                <label class="label">Finishing Cost ($):</label>
                 <input type="text" name="finishingCost" value="{{.FinishingCost}}">
             </div>
 
             <div class="form-group">
-                <label  class="label">Part Cost:</label>
+                <label class="label">Part Cost:</label>
                 <input type="number" name="cost" value="{{.Cost}}">
             </div>
 
             <div class="form-group">
-                <label  class="label">Quantity:</label>
+                <label class="label">Quantity:</label>
                 <input type="number" name="qty" value="{{.Qty}}" required>
             </div>
 
@@ -102,6 +136,7 @@
                             </div>
                         </div>
                         <div class="inline-actions">
+                            <!-- <button type="button" class="btn-open-file" onclick="openFileDirectly('{{$photo.Path}}')">🔗 Open</button> -->
                             <button type="button" class="btn-remove btn-small"
                                 onclick="removeFile(this, '{{$photo.Name}}', 'photos')">Remove</button>
                         </div>
@@ -112,7 +147,7 @@
                     {{end}}
                 </div>
                 <br>
-                <label  class="label">Add New Photos (JPG/PNG):</label>
+                <label class="label">Add New Photos (JPG/PNG):</label>
                 <div class="file-item">
                     <input type="file" name="photos" multiple accept=".jpg,.jpeg,.png,.gif" id="photoInput">
                 </div>
@@ -130,13 +165,10 @@
                     {{if hasFiles .Drawing2D.String}}
                     {{$drawings := parseJSON .Drawing2D.String}}
                     {{range $index, $drawing := $drawings}}
-                    <div class="file-item file-card" data-filename="{{$drawing.Name}}">
+                    <div class="file-item file-card file-card-clickable" data-filename="{{$drawing.Name}}"
+                        onclick="openFileDirectly('{{$drawing.Path}}')">
                         <div>
-                            <!-- <div class="file-name">📄 {{$drawing.Name}}</div> -->
-                            <!-- <a href="/uploads/{{$drawing.Path}}" class="open-link file-name" target="_blank">
-                                📄 {{$drawing.Name}}
-                            </a> -->
-                            <a href="/uploads/{{$drawing.Path}}" class="open-link file-name" target="_blank">{{$drawing.Name}}</a>
+                            <div class="file-name">{{$drawing.Name}}</div>
                             <div class="file-size">
                                 {{$drawing.Size}}
                                 {{if $drawing.Date}}
@@ -147,9 +179,8 @@
                             </div>
                         </div>
                         <div class="inline-actions">
-                            <!-- <a href="/uploads/{{$drawing.Path}}" class="btn" target="_blank">Open</a> -->
                             <button type="button" class="btn-remove btn-small"
-                                onclick="removeFile(this, '{{$drawing.Name}}', 'drawings')">Remove</button>
+                                onclick="event.stopPropagation(); removeFile(this, '{{$drawing.Name}}', 'drawings')">Remove</button>
                         </div>
                     </div>
                     {{end}}
@@ -158,7 +189,7 @@
                     {{end}}
                 </div>
                 <br>
-                <label  class="label">Add New 2D Drawing (PDF/DXF/DWG):</label>
+                <label class="label">Add New 2D Drawing (PDF/DXF/DWG):</label>
                 <div class="file-item">
                     <input type="file" name="drawings" multiple accept=".pdf,.dxf,.dwg">
                 </div>
@@ -171,13 +202,10 @@
                     {{if hasFiles .Cad3D.String}}
                     {{$cad := parseJSON .Cad3D.String}}
                     {{range $index, $cadFile := $cad}}
-                    <div class="file-item file-card" data-filename="{{$cadFile.Name}}">
+                    <div class="file-item file-card file-card-clickable" data-filename="{{$cadFile.Name}}"
+                        onclick="openFileDirectly('{{$cadFile.Path}}')">
                         <div>
-                            <!-- <div class="file-name">⚙️ {{$cadFile.Name}}</div> -->
-                        <!-- <a href="/uploads/{{$cadFile.Path}}" class="open-link file-name" target="_blank">
-                            ⚙️ {{$cadFile.Name}}
-                        </a> -->
-                        <a href="/uploads/{{$cadFile.Path}}" class="open-link file-name" target="_blank">{{$cadFile.Name}}</a>
+                            <div class="file-name">{{$cadFile.Name}}</div>
                             <div class="file-size">
                                 {{$cadFile.Size}}
                                 {{if $cadFile.Date}}
@@ -188,9 +216,8 @@
                             </div>
                         </div>
                         <div class="inline-actions">
-                            <!-- <a href="/uploads/{{$cadFile.Path}}" class="btn" target="_blank">Open</a> -->
                             <button type="button" class="btn-remove btn-small"
-                                onclick="removeFile(this, '{{$cadFile.Name}}', 'cad')">Remove</button>
+                                onclick="event.stopPropagation(); removeFile(this, '{{$cadFile.Name}}', 'cad')">Remove</button>
                         </div>
                     </div>
                     {{end}}
@@ -199,7 +226,7 @@
                     {{end}}
                 </div>
                 <br>
-                <label  class="label">Add New 3D CAD Files :</label>
+                <label class="label">Add New 3D CAD Files :</label>
                 <div class="file-item">
                     <input type="file" name="cad" multiple
                         accept=".stp,.step,.igs,.iges,.sat,.x_t,.x_b,.sldprt,.sldasm,.ipt,.iam,.prt,.asm">
@@ -213,13 +240,10 @@
                     {{if hasFiles .CncCode.String}}
                     {{$cnc := parseJSON .CncCode.String}}
                     {{range $index, $cncFile := $cnc}}
-                    <div class="file-item file-card" data-filename="{{$cncFile.Name}}">
+                    <div class="file-item file-card file-card-clickable" data-filename="{{$cncFile.Name}}"
+                        onclick="openFileDirectly('{{$cncFile.Path}}')">
                         <div>
-                            <!-- <div class="file-name">🔧 {{$cncFile.Name}}</div> -->
-                        <!-- <a href="/uploads/{{$cncFile.Path}}" class="open-link file-name" target="_blank">
-                            🔧 {{$cncFile.Name}}
-                        </a> -->
-                        <a href="/uploads/{{$cncFile.Path}}" class="open-link file-name" target="_blank">{{$cncFile.Name}}</a>
+                            <div class="file-name">{{$cncFile.Name}}</div>
                             <div class="file-size">
                                 {{$cncFile.Size}}
                                 {{if $cncFile.Date}}
@@ -230,9 +254,8 @@
                             </div>
                         </div>
                         <div class="inline-actions">
-                            <!-- <a href="/uploads/{{$cncFile.Path}}" class="btn" target="_blank">Open</a> -->
                             <button type="button" class="btn-remove btn-small"
-                                onclick="removeFile(this, '{{$cncFile.Name}}', 'cnc')">Remove</button>
+                                onclick="event.stopPropagation(); removeFile(this, '{{$cncFile.Name}}', 'cnc')">Remove</button>
                         </div>
                     </div>
                     {{end}}
@@ -241,7 +264,7 @@
                     {{end}}
                 </div>
                 <br>
-                <label  class="label">Add New CNC Code Files :</label>
+                <label class="label">Add New CNC Code Files :</label>
                 <div class="file-item">
                     <input type="file" name="cnc" multiple
                         accept=".mc9,.nc,.tap,.mpf,.spf,.mcam,.mcx,.mcx-5,.mcx-6,.mmd,.pst">
@@ -255,13 +278,10 @@
                     {{if hasFiles .Invoice.String}}
                     {{$invoice := parseJSON .Invoice.String}}
                     {{range $index, $invoiceFile := $invoice}}
-                    <div class="file-item file-card" data-filename="{{$invoiceFile.Name}}">
+                    <div class="file-item file-card file-card-clickable" data-filename="{{$invoiceFile.Name}}"
+                        onclick="openFileDirectly('{{$invoiceFile.Path}}')">
                         <div>
-                            <!-- <div class="file-name">📝 {{$invoiceFile.Name}}</div> -->
-                        <!-- <a href="/uploads/{{$invoiceFile.Path}}" class="open-link file-name" target="_blank">
-                            📝 {{$invoiceFile.Name}}
-                        </a> -->
-                        <a href="/uploads/{{$invoiceFile.Path}}" class="open-link file-name" target="_blank">{{$invoiceFile.Name}}</a>
+                            <div class="file-name">{{$invoiceFile.Name}}</div>
                             <div class="file-size">
                                 {{$invoiceFile.Size}}
                                 {{if $invoiceFile.Date}}
@@ -272,9 +292,8 @@
                             </div>
                         </div>
                         <div class="inline-actions">
-                            <!-- <a href="/uploads/{{$invoiceFile.Path}}" class="btn" target="_blank">Open</a> -->
                             <button type="button" class="btn-remove btn-small"
-                                onclick="removeFile(this, '{{$invoiceFile.Name}}', 'invoice')">Remove</button>
+                                onclick="event.stopPropagation(); removeFile(this, '{{$invoiceFile.Name}}', 'invoice')">Remove</button>
                         </div>
                     </div>
                     {{end}}
@@ -283,7 +302,7 @@
                     {{end}}
                 </div>
                 <br>
-                <label  class="label">Add New Invoice Files (PDF):</label>
+                <label class="label">Add New Invoice Files (PDF):</label>
                 <div class="file-item">
                     <input type="file" name="invoice" multiple
                         accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.rtf,.odt,.ods,.odp">
@@ -292,12 +311,12 @@
 
             <!-- Metadata -->
             <div class="form-group">
-                <label  class="label">Created At:</label>
+                <label class="label">Created At:</label>
                 <div class="file-info">{{.CreatedAt}}</div>
             </div>
 
             <div class="form-group">
-                <label  class="label">Last Updated:</label>
+                <label class="label">Last Updated:</label>
                 <div class="file-info">{{.UpdatedAt}}</div>
             </div>
         </form>
@@ -320,6 +339,29 @@
                 img.src = cleanSrc + '?v=' + Date.now();
             });
         });
+
+        function openFileDirectly(filePath) {
+            fetch('/open-file', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ filePath: filePath })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to open file');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data.message);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to open file: ' + error.message);
+                });
+        }
     </script>
 
 </body>

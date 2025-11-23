@@ -27,28 +27,38 @@
             margin-bottom: 10px;
         }
 
-        /* .btn,
-        .btn-cancel,
-        .btn-open {
-        display: inline-flex;        
-        align-items: center;         
-        justify-content: center;     
-        text-align: center;          
-        vertical-align: middle;      
-        } */
-        /* allows proper centering */
-        /* vertical center */
-        /* horizontal center */
-        /* ensure text centered if multiple lines */
-        /* aligns inline buttons consistently */
+        .file-card-clickable {
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
 
-        /* .btn,
-        .btn-cancel,
-        .btn-open {
-        min-height: 38px;  
-        } */
+        .file-card-clickable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
 
+        .btn-open-file {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-top: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
 
+        .btn-open-file:hover {
+            background-color: #218838;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
     </style>
 </head>
 
@@ -57,11 +67,11 @@
     <div class="container">
         <h1>Product Details</h1>
         <div class="form-actions">
-            <button onclick="openUploadFolder('{{.PartNo}}')" class="btn" title="Open upload folder in Windows Explorer">📁 Open Folder</button>
+            <button onclick="openUploadFolder('{{.PartNo}}')" class="btn"
+                title="Open upload folder in Windows Explorer">📁 Open Folder</button>
             <a href="/modify/{{.ID}}" class="btn-edit">Edit</a>
             <a href="/" class="btn-cancel">Back</a>
         </div>
-
 
         <div class="detail-section">
             <div class="detail-grid">
@@ -110,10 +120,10 @@
                         <div class="file-name">{{.Name}}</div>
                         <div class="file-size">
                             {{.Size}}
-                            {{if .Date}}<br><span class="file-date">{{.Date}}</span>{{else}}{{with fileModDate .Path}}<br><span
-                                class="file-date">{{.}}</span>{{end}}{{end}}
-
+                            {{if .Date}}<br><span class="file-date">{{.Date}}</span>{{else}}{{with fileModDate
+                            .Path}}<br><span class="file-date">{{.}}</span>{{end}}{{end}}
                         </div>
+                        <!-- <button onclick="openFileDirectly('{{.Path}}')" class="btn-open-file">🔗 Open</button> -->
                     </div>
                 </div>
                 {{end}}
@@ -129,21 +139,19 @@
             {{$drawings := parseJSON .Drawing2D.String}}
             <div class="files-grid">
                 {{range $drawings}}
-                <a href="/uploads/{{.Path}}" class="file-card-link" target="_blank">
-                    <div class="file-card">
-                        <div>
-                            <div class="file-name">{{.Name}}</div>
-                            <div class="file-size">
-                                {{.Size}}
-                                {{if .Date}}
-                                <br><span class="file-date">{{.Date}}</span>
-                                {{else}}
-                                {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
-                                {{end}}
-                            </div>
+                <div class="file-card file-card-clickable" onclick="openFileDirectly('{{.Path}}')">
+                    <div>
+                        <div class="file-name">{{.Name}}</div>
+                        <div class="file-size">
+                            {{.Size}}
+                            {{if .Date}}
+                            <br><span class="file-date">{{.Date}}</span>
+                            {{else}}
+                            {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                            {{end}}
                         </div>
                     </div>
-                </a>
+                </div>
                 {{end}}
             </div>
             {{else}}
@@ -157,21 +165,19 @@
             {{$cad := parseJSON .Cad3D.String}}
             <div class="files-grid">
                 {{range $cad}}
-                <a href="/uploads/{{.Path}}" class="file-card-link" target="_blank">
-                    <div class="file-card">
-                        <div>
-                            <div class="file-name">{{.Name}}</div>
-                            <div class="file-size">
-                                {{.Size}}
-                                {{if .Date}}
-                                <br><span class="file-date">{{.Date}}</span>
-                                {{else}}
-                                {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
-                                {{end}}
-                            </div>
+                <div class="file-card file-card-clickable" onclick="openFileDirectly('{{.Path}}')">
+                    <div>
+                        <div class="file-name">{{.Name}}</div>
+                        <div class="file-size">
+                            {{.Size}}
+                            {{if .Date}}
+                            <br><span class="file-date">{{.Date}}</span>
+                            {{else}}
+                            {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                            {{end}}
                         </div>
                     </div>
-                </a>
+                </div>
                 {{end}}
             </div>
             {{else}}
@@ -185,21 +191,19 @@
             {{$cnc := parseJSON .CncCode.String}}
             <div class="files-grid">
                 {{range $cnc}}
-                <a href="/uploads/{{.Path}}" class="file-card-link" target="_blank">
-                    <div class="file-card">
-                        <div>
-                            <div class="file-name">{{.Name}}</div>
-                            <div class="file-size">
-                                {{.Size}}
-                                {{if .Date}}
-                                <br><span class="file-date">{{.Date}}</span>
-                                {{else}}
-                                {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
-                                {{end}}
-                            </div>
+                <div class="file-card file-card-clickable" onclick="openFileDirectly('{{.Path}}')">
+                    <div>
+                        <div class="file-name">{{.Name}}</div>
+                        <div class="file-size">
+                            {{.Size}}
+                            {{if .Date}}
+                            <br><span class="file-date">{{.Date}}</span>
+                            {{else}}
+                            {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                            {{end}}
                         </div>
                     </div>
-                </a>
+                </div>
                 {{end}}
             </div>
             {{else}}
@@ -213,21 +217,19 @@
             {{$invoice := parseJSON .Invoice.String}}
             <div class="files-grid">
                 {{range $invoice}}
-                <a href="/uploads/{{.Path}}" class="file-card-link" target="_blank">
-                    <div class="file-card">
-                        <div>
-                            <div class="file-name">{{.Name}}</div>
-                            <div class="file-size">
-                                {{.Size}}
-                                {{if .Date}}
-                                <br><span class="file-date">{{.Date}}</span>
-                                {{else}}
-                                {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
-                                {{end}}
-                            </div>
+                <div class="file-card file-card-clickable" onclick="openFileDirectly('{{.Path}}')">
+                    <div>
+                        <div class="file-name">{{.Name}}</div>
+                        <div class="file-size">
+                            {{.Size}}
+                            {{if .Date}}
+                            <br><span class="file-date">{{.Date}}</span>
+                            {{else}}
+                            {{with fileModDate .Path}}<br><span class="file-date">{{.}}</span>{{end}}
+                            {{end}}
                         </div>
                     </div>
-                </a>
+                </div>
                 {{end}}
             </div>
             {{else}}

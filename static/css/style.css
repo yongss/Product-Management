@@ -496,6 +496,11 @@ td.text-wrap-20 .open-link {
   transform: translateY(-2px);
 }
 
+.file-card:hover {
+  background: rgba(0, 123, 255, 0.05);
+}
+
+
 .file-card-link  .file-size {
   /* color: #555;
   font-size: 0.85em;

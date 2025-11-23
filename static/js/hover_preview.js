@@ -23,12 +23,11 @@ document.addEventListener('DOMContentLoaded', function () {
     previewDiv.id = 'hover-preview';
     previewDiv.style.cssText = `
       position: fixed;
-      left: 20px;
+      left: 40px;
       top: 50%;
       transform: translateY(-50%);
       width: 50vw;
       max-width: 800px;
-      max-height: 500px;
       border: 3px solid #007bff;
       border-radius: 8px;
       box-shadow: 0 10px 40px rgba(0,0,0,0.3);
@@ -38,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
       z-index: 9999;
       background-color: white;
       pointer-events: none;
-      padding: 10px;
+      padding: 5px;
       display: flex;
       align-items: center;
       justify-content: center;
